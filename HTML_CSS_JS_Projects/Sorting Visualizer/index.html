@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title></title>
+        <link rel="stylesheet" href="styles.css"></link>
+        <style></style>
+        <script></script>
+    </head>
+    <body>
+        <div class="container controls-container">
+            <h3>Sorting Visualizer</h3>
+            <label for="sortType">Select sort type</label>
+            <select id="sortType" name="sortType">
+                <option value="Bubble Sort">Bubble Sort</option>
+                <option value="Insertion Sort">Insertion Sort</option>
+                <option value="Selection Sort">Selection Sort</option>
+                <option value="Quick Sort">Quick Sort</option>
+                <option value="Merge Sort">Merge Sort</option>
+            </select>
+            <label for="sortSpeed">Select sort speed</label>
+            <select id="sortSpeed" name="sortSpeed">
+                <option value="4">4 ms</option>
+                <option value="10">10 ms</option>
+                <option value="40">40 ms</option>
+                <option value="80">80 ms</option>
+                <option value="160">160 ms</option>
+                <option value="1000">1000 ms</option>
+            </select>
+            <br><br>
+            <label for="numberOfBarsDropdown">Select number of bars</label>
+            <select id="numberOfBarsDropdown" name="numberOfBarsDropdown">
+                <option value="6">6 bars</option>
+                <option value="10">10 bars</option>
+                <option value="30">30 bars</option>
+                <option value="50">50 bars</option>
+            </select>
+            <button type="button" onclick="resetBars()"> Set bars </button>
+            <button type="button" onclick="startSort()"> Sort bars </button>
+
+        </div>
+        <div class="container bars-container">
+            <svg>
+                <!-- <rect 
+                x="0" 
+                y="0" 
+                width="30" 
+                height="200" />
+                Sorry, your browser does not support inline SVG. 
+                
+                <rect class="rect"
+                x="30" 
+                y="0" 
+                width="30" 
+                height="300" />
+                Sorry, your browser does not support inline SVG.   -->
+            </svg>
+        </div>
+        <script src="./index.js"></script>
+    </body>
+</html>
