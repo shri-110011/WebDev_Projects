@@ -2,11 +2,3 @@
 build/
 
 lib/
-
-resources/
-
-.settings/
-
-.classpath
-
-.project

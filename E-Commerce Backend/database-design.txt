@@ -1,0 +1,219 @@
+Database to be used: MySQL
+
+Database name: ecommerce_db
+
+Tables required:
+
+Table users:
+Fields:
+user_id: mediumint primary key auto increment
+user_name: varchar(45)
+email_id: varchar(30)
+
+Functional Dependencies:
+user_id -> (user_name, email_id)
+email_id -> (user_id, user_name)
+
+Table users is in BCNF.
+
+Table products:
+Fields:
+product_id: mediumint primary key
+product_name: varchar(45)
+price: decimal(6,2)
+category_id: tinyint
+available_quantity: int
+
+Functional Dependencies:
+product_id -> (product_name, price, category_id, available_quantity)
+
+Table products is in BCNF.
+
+Table categories:
+Fields:
+category_id: tinyint primary key
+category_name: varchar(45)
+
+Functional Dependencies:
+category_id ->  category_name
+
+Table categories is in BCNF.
+
+Table inventory:
+Fields:
+inventory_id: mediumint primary
+
+product_id: mediumint
+
+order_id: mediumint
+
+change_type: varchar(45) 'restock', 'sale', 'return', 'adjustment', 'reservation'
+
+quantity: int
+
+creation_datetime: date time
+
+status: 'Active', 'Cancelled', 'Completed'
+
+status_change_datetime: date time
+
+reason: varchar(50)
+
+Reasons for change_type = 'return' are:
+'damaged_product', 'defective_product', 'wrong_item', 
+'change_of_mind', 'size_or_fit_issues', 'expired_product', 'not_as_described'
+
+Reasons for change_type = 'adjustment' are:
+'damaged_goods', 'miscount', 'theft', 'expired_goods', 'supplier_returns'
+
+** Not required
+Reasons for change_type = 'restock' are:
+'returned - wrong_item', 'returned - change_of_mind', 'returned - size_or_fit_issues', 
+'new_stock', 'miscount_correction'
+** Instead making change_type = 'restock' exclusively for new stock.
+
+adjusted_by: varchar(45) 
+Description: Authorized person who made the manual adjustment.
+
+Reasons description for change_type = 'return' are:
+'damaged_product' - The product is damaged upon arrival, necessitating a return.
+'defective_product' - The item received is not functioning as expected or is faulty.
+'wrong_item' - The customer receives a product different from what they ordered.
+'change_of_mind' - Customers decide they no longer want the product after purchasing 
+it.
+'size_or_fit_issues' - Common in clothing and shoes; the product does not fit as 
+expected.
+'expired_product' - In cases of consumables, the product is returned because it was 
+expired upon receipt.
+'not_as_described' - The product does not meet the customer's expectations for quality.
+
+Reasons description for change_type = 'adjustment' are:
+'damaged_goods' - Products that are damaged during shipping, handling, or storage 
+and need to be removed from inventory.
+
+'miscount' - Corrections made when a discrepancy is found between physical stock 
+and inventory records.
+
+Positive Miscount Adjustments:
+Example: If your records show 50 units of a product, but a physical count reveals 
+70 units, you would adjust the inventory by +20 units.
+
+Negative Miscount Adjustments:
+Example: If your records show 100 units of a product, but the count reveals only 
+80 units, you would adjust the inventory by -20 units.
+
+'theft' - Adjustments made to account for lost or stolen inventory.
+'expired_goods' - Items that are no longer sellable due to expiration dates, 
+especially in industries like food and pharmaceuticals.
+'supplier_returns' - When returning unsold or defective goods to suppliers.
+
+Functional Dependencies:
+inventory_id -> (product_id, order_id, change_type, quantity, created_date_time, 
+change_date_time, reason, status, adjusted_by)
+
+Table inventory is in BCNF.
+
+Table orders:
+Fields:
+order_id: mediumint primary key
+user_id: mediumint
+total_amount: decimal(7,2)
+status:  (Pending, Shipped, Delivered, Cancelled)
+order_creation_datetime: datetime
+order_cancellation_datetime: datetime
+
+Functional Dependencies:
+order_id -> (user_id, total_amount, status, order_creation_datetime, 
+order_cancellation_datetime)
+
+Table orders is in BCNF.
+
+Table order_items:
+Fields:
+order_id: mediumint
+product_id: mediumint
+quantity: tinyint
+price_at_purchase: decimal(6,2)
+
+order_id and product_id together form the primary key.
+
+Functional Dependencies:
+(order_id, product_id) -> (quantity, price_at_purchase)
+
+Table order_items is in BCNF.
+
+Whenever an order cancellation take place then the order_cancellation_datetime in 
+orders table and change_date_time in inventory can have some difference maybe in 
+seconds, is this ok?
+A slight difference in seconds between the order_cancellation_datetime and the 
+change_date_time is generally acceptable. The focus should be on maintaining 
+accurate records of each action and ensuring that the business logic handles any 
+inconsistencies gracefully.
+
+What is the flow to accurately track the available_quantity of a product?
+
+available_quantity in products table will track the current available stock of each 
+product in real-time and can be updated in batches for newstock, returns, adjustments, 
+and reservations.
+
+This allows you to query the available stock directly without needing to calculate 
+it on-the-fly.
+
+Real-time Updates for Critical Actions (like Checkout and Cancellation):
+Reservations and Checkouts: When a customer proceeds to checkout, decrement the 
+available_quantity in real-time to reflect the reserved stock. This ensures that 
+customers see the correct stock availability during the purchase process.
+
+For instance, once a product is reserved during checkout, update available_quantity 
+in the products table to prevent over-selling.
+
+For cancelled orders, immediately release the reserved stock by incrementing the 
+available_quantity.
+
+Batch Processing for Less Critical Updates (like Returns, Adjustments):
+For returns and adjustments, use batch processing to periodically update the 
+available_quantity. Since these events are not as time-sensitive as checkout or 
+order cancellation, they can be processed in intervals (e.g., every 5 or 10 minutes).
+
+The batch job will sum the changes (from new stocks, returns, adjustments) and apply 
+them to the available_quantity.
+
+Handling Reservations:
+Reservations (Pending Orders): When an order is placed but not yet completed 
+(e.g., awaiting payment), mark it as a reservation and deduct the reserved quantity 
+from available_quantity in real-time.
+
+If the customer abandons the checkout or fails to pay, the batch job can handle 
+the reservation by changing its status to 'Completed' and restoring the 
+available_quantity.
+
+Handling Adjustments and Returns:
+For adjustments like "damaged goods," "expired goods," etc., batch process these 
+changes.
+
+Ensure that only valid returns (e.g., "change_of_mind" or "size_or_fit_issues") 
+count towards increasing the available_quantity. Damaged or defective product 
+returns should not increase available stock.
+
+Change the status of adjustment and returns to 'Completed' and also update the 
+change_time.
+
+Suppose a user checkout so a reservation for the puchased product would be made, and
+let us say the user at a later point cancels that order. Now according to our design
+we would immediately update the available_quantity but how to handle the earlier 
+added reservation corresponding to this order?
+
+We would have an order_id associated with each inventory change. This order_id
+field is optional and applies to change_type='reservation', 'sale', 'return'.
+
+Using the order id we can get the reservations whose status have to be changed to 
+'Cancelled' due to order cancellation.
+
+By maintaining both 'created_date_time' and 'change_date_time' we can effectively track 
+the latest status change time as well as when the change was created.
+
+How are we going to only batch process the unprocessed returns, reservations and 
+adjustments in inventory table?
+We make use of the status column. Only process those returns, reservations and 
+adjustments in inventory table that have status as 'active'.
+

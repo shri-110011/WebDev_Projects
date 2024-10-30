@@ -1,0 +1,28 @@
+Goal: To create a backend for an E-Commerce platform using RESTful apis.
+
+Features:
+1. User should be able to get the available product categories.
+API Endpoint:
+/baseURL/api/v1/categories
+Method: GET
+
+2. User should be able to get the products by category.
+API Endpoint:
+/baseURL/api/v1/categories/{category}/products
+Method: GET
+
+3. User should be able to place an order.
+API Endpoint:
+/baseURL/api/v1/orders
+Method: POST
+
+4. User should be able to cancel an order.
+API Endpoint:
+/baseURL/api/v1/orders/{orderId}
+Method: Delete
+
+5. User should be able to track the order status.
+API Endpoint:
+/baseURL/api/v1/orders/{orderId}/status
+Method: GET
+

@@ -1,6 +1,6 @@
 -- drop database web_customer_tracker;
 
-create database if not exists web_customer_tracker;
+-- create database if not exists web_customer_tracker;
 
 use web_customer_tracker;
 
@@ -20,4 +20,4 @@ insert into customer values
 	(4,'Mary','Public','mary@gmail.com'),
 	(5,'Maxwell','Dixon','max@gmail.com');
     
--- select * from customer;
+select * from customer;
