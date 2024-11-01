@@ -1,4 +1,4 @@
-1. Create a Dynamc Web Project called ecommerce-backend.
+1. Create a Dynamic Web Project called ecommerce-backend.
 
 2. Add the 66 Spring jar files located at D:\Software\Spring\spring-framework-5.3.9\libs to D:\Java EE Workspace\ecommerce-backend\WebContent\WEB-INF\lib.
 

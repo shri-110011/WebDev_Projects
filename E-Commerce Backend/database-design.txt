@@ -18,7 +18,7 @@ Table users is in BCNF.
 
 Table products:
 Fields:
-product_id: mediumint primary key
+product_id: mediumint primary key auto increment
 product_name: varchar(45)
 price: decimal(6,2)
 category_id: tinyint
