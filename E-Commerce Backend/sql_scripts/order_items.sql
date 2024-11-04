@@ -5,8 +5,9 @@ drop table if exists order_items;
 create table order_items (
 	order_id mediumint,
     product_id mediumint,
-    quantity tinyint,
-    price_at_purchase decimal(8, 2),
+    quantity tinyint not null,
+    price_at_purchase decimal(8, 2) not null,
+    primary key (order_id, product_id),
     foreign key(order_id) references orders(order_id),
     foreign key(product_id) references products(product_id)
 );
@@ -20,3 +21,5 @@ values
 (1000002, 1000003, 1, 2999);
 
 select * from order_items;
+
+desc order_items;

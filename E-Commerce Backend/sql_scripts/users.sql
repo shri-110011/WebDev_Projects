@@ -10,8 +10,6 @@ create table users (
     email_id varchar(30) unique not null
 ) auto_increment = 1000001;
 
-desc users;
-
 insert into users 
 (user_name, email_id)
 values
@@ -19,3 +17,5 @@ values
 ('Peter', 'peter@gmail.com');
 
 select * from users;
+
+desc users;

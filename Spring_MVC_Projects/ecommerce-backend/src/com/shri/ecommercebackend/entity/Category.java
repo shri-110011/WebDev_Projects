@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "categories")
 public class Category {
@@ -24,7 +26,8 @@ public class Category {
 	@Column(name = "category_name")
 	private String categoryName;
 	
-	@OneToMany(mappedBy = "category", cascade = {CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "category", cascade = {CascadeType.REFRESH}, fetch = FetchType.LAZY)
+	@JsonIgnore
 	private List<Product> products;
 	
 	public Category() {

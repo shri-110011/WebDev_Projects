@@ -5,9 +5,9 @@ drop table if exists products;
 create table products (
 	product_id mediumint primary key auto_increment,
     product_name varchar(45) not null,
-    price decimal(8, 2),
-    category_id tinyint,
-    available_quantity int,
+    price decimal(8, 2) not null,
+    category_id tinyint not null,
+    available_quantity int not null,
     foreign key(category_id) references categories(category_id)
 ) auto_increment = 1000001;
 
@@ -31,3 +31,5 @@ values
 ('Amul Kesar Milk, 100g', 18, 20, 80);
 
 select * from products;
+
+desc products;

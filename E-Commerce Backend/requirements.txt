@@ -16,6 +16,29 @@ API Endpoint:
 /baseURL/api/v1/orders
 Method: POST
 
+    3.1 On checkout and before the order is confirmed we need to reserve the items in 
+    cart.
+    API Endpoint:
+    /baseURL/api/v1/reserve-items
+    Method: POST
+    Request body:
+    {
+        userId: $userId,
+        cartItems: [
+            {
+                productId: $productId,
+                quantity: $quantity,
+                pricePerUnit: $pricePerUnit
+            },
+            ...
+        ]
+    }
+
+    Response body:
+    {
+        reservationId: $reservationId
+    }
+
 4. User should be able to cancel an order.
 API Endpoint:
 /baseURL/api/v1/orders/{orderId}

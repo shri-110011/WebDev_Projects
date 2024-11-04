@@ -7,7 +7,7 @@ Tables required:
 Table users:
 Fields:
 user_id: mediumint primary key auto increment
-user_name: varchar(45)
+user_name: varchar(45) not null
 email_id: varchar(30)
 
 Functional Dependencies:
@@ -19,10 +19,10 @@ Table users is in BCNF.
 Table products:
 Fields:
 product_id: mediumint primary key auto increment
-product_name: varchar(45)
-price: decimal(6,2)
-category_id: tinyint
-available_quantity: int
+product_name: varchar(45) not null
+price: decimal(6,2) not null
+category_id: tinyint not null
+available_quantity: int not null
 
 Functional Dependencies:
 product_id -> (product_name, price, category_id, available_quantity)
@@ -32,7 +32,7 @@ Table products is in BCNF.
 Table categories:
 Fields:
 category_id: tinyint primary key
-category_name: varchar(45)
+category_name: varchar(45) not null
 
 Functional Dependencies:
 category_id ->  category_name
@@ -43,21 +43,24 @@ Table inventory:
 Fields:
 inventory_id: mediumint primary
 
-product_id: mediumint
+product_id: mediumint not null
 
-order_id: mediumint
+change_type: ('RESTOCK', 'SALE', 'RETURN', 'ADJUSTMENT', 'RESERVATION') not null
 
-change_type: varchar(45) 'restock', 'sale', 'return', 'adjustment', 'reservation'
+quantity: int not null
 
-quantity: int
+creation_datetime: timestamp not null
 
-creation_datetime: date time
+status: ('ACTIVE', 'CANCELLED', 'COMPLETED') not null
 
-status: 'Active', 'Cancelled', 'Completed'
+status_change_datetime: timestamp
 
-status_change_datetime: date time
+adjusted_by: varchar(45) 
+Description: Authorized person who made the manual adjustment.
 
-reason: varchar(50)
+reason: varchar(45)
+
+product_id is a foreign key.
 
 Reasons for change_type = 'return' are:
 'damaged_product', 'defective_product', 'wrong_item', 
@@ -71,9 +74,6 @@ Reasons for change_type = 'restock' are:
 'returned - wrong_item', 'returned - change_of_mind', 'returned - size_or_fit_issues', 
 'new_stock', 'miscount_correction'
 ** Instead making change_type = 'restock' exclusively for new stock.
-
-adjusted_by: varchar(45) 
-Description: Authorized person who made the manual adjustment.
 
 Reasons description for change_type = 'return' are:
 'damaged_product' - The product is damaged upon arrival, necessitating a return.
@@ -108,23 +108,52 @@ especially in industries like food and pharmaceuticals.
 'supplier_returns' - When returning unsold or defective goods to suppliers.
 
 Functional Dependencies:
-inventory_id -> (product_id, order_id, change_type, quantity, created_date_time, 
-change_date_time, reason, status, adjusted_by)
+inventory_id -> (product_id, change_type, quantity, creation_datetime, 
+status_change_datetime, reason, status, adjusted_by)
 
 Table inventory is in BCNF.
 
 Table orders:
 Fields:
 order_id: mediumint primary key
-user_id: mediumint
-total_amount: decimal(7,2)
-status:  (Pending, Shipped, Delivered, Cancelled)
-order_creation_datetime: datetime
+user_id: mediumint not null
+total_amount: decimal(7,2) not null
+order_status: ('PENDING', 'CONFIRMED', 'PROCESSING', 'PACKAGED', 'SHIPPED', 
+'DELIVERED', 'CANCELLED') not null
+order_creation_datetime: datetime not null
 order_cancellation_datetime: datetime
+payment_status: ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED') not null
+payment_method: ('CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL', 'CASH_ON_DELIVERY') not null
+
+order_status description:
+'PENDING': The user has initiated payment but has not yet completed the payment.
+
+'CONFIRMED': The order is confirmed after payment is completed or the customer 
+selects cash-on-delivery (COD).
+
+'PROCESSING': The order is being prepared for fulfillment. This could include 
+picking items from inventory.
+
+'PACKAGED': The order has been packaged and is ready for shipping but has not yet 
+been handed over to the shipping carrier.
+
+'SHIPPED': The order has been dispatched to the shipping carrier for delivery.
+
+'DELIVERED': The order has been successfully delivered to the customer.
+
+'CANCELLED': The order can get cancelled:
+- Because the payment was failed before confirmation.
+- After the order was placed but before shipment.
+
+payment_status description:
+'PENDING': Payment has been initiated but not completed.
+'COMPLETED': Payment has been successfully processed.
+'FAILED': There was an issue with the payment processing.
+'REFUNDED': The payment was successfully refunded.
 
 Functional Dependencies:
-order_id -> (user_id, total_amount, status, order_creation_datetime, 
-order_cancellation_datetime)
+order_id -> (order_id, user_id, total_amount, order_status, order_creation_datetime, 
+order_cancellation_datetime, payment_status, payment_method)
 
 Table orders is in BCNF.
 
@@ -132,21 +161,51 @@ Table order_items:
 Fields:
 order_id: mediumint
 product_id: mediumint
-quantity: tinyint
-price_at_purchase: decimal(6,2)
+quantity: tinyint not null
+price_at_purchase: decimal(6,2) not null
 
-order_id and product_id together form the primary key.
+order_id and product_id are are foreign keys and they together form the 
+primary key for order_items.
 
 Functional Dependencies:
 (order_id, product_id) -> (quantity, price_at_purchase)
 
 Table order_items is in BCNF.
 
+Table reservations:
+Fields:
+reservation_id: mediumint primary key
+user_id: mediumint not null
+creation_datetime: timestamp not null
+expiration_datetime: timestamp not null
+status: (Active, Expired) not null
+
+Functional Dependencies:
+reservation_id -> (reservation_id, user_id, creation_datetime, expiration_datetime, 
+status)
+
+Table reservations is in BCNF.
+
+Table inventory_orders:
+Fields:
+inventory_id: mediumint
+order_id: mediumint
+reservation_id: mediumint not null
+
+inventory_id is the primary key.
+
+inventory_id, order_id, reservation_id all 3 are foreign keys.
+
+Functional Dependencies:
+inventory_id -> (inventory_id, order_id, reservation_id)
+
+Table inventory_orders is in BCNF.
+
 Whenever an order cancellation take place then the order_cancellation_datetime in 
-orders table and change_date_time in inventory can have some difference maybe in 
-seconds, is this ok?
+orders table and status_change_datetime in inventory can have some difference maybe 
+in seconds, is this ok?
 A slight difference in seconds between the order_cancellation_datetime and the 
-change_date_time is generally acceptable. The focus should be on maintaining 
+status_change_datetime is generally acceptable. The focus should be on maintaining 
 accurate records of each action and ensuring that the business logic handles any 
 inconsistencies gracefully.
 
@@ -196,24 +255,57 @@ count towards increasing the available_quantity. Damaged or defective product
 returns should not increase available stock.
 
 Change the status of adjustment and returns to 'Completed' and also update the 
-change_time.
+status_change_datetime.
 
 Suppose a user checkout so a reservation for the puchased product would be made, and
 let us say the user at a later point cancels that order. Now according to our design
 we would immediately update the available_quantity but how to handle the earlier 
 added reservation corresponding to this order?
 
-We would have an order_id associated with each inventory change. This order_id
-field is optional and applies to change_type='reservation', 'sale', 'return'.
+To handle expired reservations because of order cancellation:
 
-Using the order id we can get the reservations whose status have to be changed to 
-'Cancelled' due to order cancellation.
+- We first have to get all the inventory_ids using the order_id that was just 
+cancelled.
 
-By maintaining both 'created_date_time' and 'change_date_time' we can effectively track 
-the latest status change time as well as when the change was created.
+- Then using the inventory_ids get all the entries in inventory, group the entries by 
+product_id, aggregate the quantity and then update the available_quantity in products
+for each item corresponding to this cancelled order.
+
+Using the inventory_ids we can change the status to 'COMPLETED' due to order 
+cancellation.
+
+By maintaining both 'creation_datetime' and 'status_change_datetime' we can 
+effectively track the latest status change time as well as when the change was 
+created.
 
 How are we going to only batch process the unprocessed returns, reservations and 
 adjustments in inventory table?
 We make use of the status column. Only process those returns, reservations and 
 adjustments in inventory table that have status as 'active'.
 
+What is flow to make reservations during checkout?
+1. Capture Checkout Items: When the user initiates checkout, gather all items in 
+the cart.
+
+2. Reserve Items in Inventory Table:
+
+Insert the items into the inventory table to indicate that they are reserved.
+
+Capture the inventory_ids of these items.
+
+3. Create Reservation Record:
+
+Create a new entry in the reservations table with the following details:
+user_id: to associate the reservation with the specific user.
+expires_at: to indicate when the reservation should expire.
+Generate a reservation_id.
+
+4. Link Reservations to Inventory:
+
+Insert each reserved item’s inventory_id and the reservation_id into the 
+inventory_orders table to associate the reservation with specific items.
+
+5. Store Reservation Data in Session (or Return to Frontend):
+
+Store the reservation_id in the user’s session, or send it back to the frontend if 
+you need the reservation to persist across requests.

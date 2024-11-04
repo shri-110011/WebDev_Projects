@@ -36,6 +36,7 @@ public class ProductDAOImpl implements ProductDAO {
 
 	@Override
 	public CategoryProductsDTO getProductsByCategory(byte categoryId) {
+		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
 		Category category = currentSession.get(Category.class, categoryId);
@@ -52,6 +53,7 @@ public class ProductDAOImpl implements ProductDAO {
 				product.getAvailableQuantity())).collect(Collectors.toList());
 		
 		return new CategoryProductsDTO(category.getCategoryId(), category.getCategoryName(), productDTOs);
+	
 	}
 
 }
