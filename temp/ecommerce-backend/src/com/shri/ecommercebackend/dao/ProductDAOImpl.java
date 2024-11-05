@@ -41,7 +41,7 @@ public class ProductDAOImpl implements ProductDAO {
 		
 		Category category = currentSession.get(Category.class, categoryId);
 		
-		System.out.println("Requested Category: " + category);
+		System.out.println(category);
 		
 		if(category == null) throw new CategoryNotFoundException("Category id: "+ categoryId + " not found!");
 		
