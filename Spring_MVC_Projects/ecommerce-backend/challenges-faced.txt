@@ -228,7 +228,6 @@ public class ProductRestController {
 
 }
 
-
 HttpStatus in ErrorResponse:
 
 Including the status code in ErrorResponse makes it part of the error message payload 
@@ -243,3 +242,227 @@ HttpStatus in ResponseEntity Constructor:
 
 - Specifying the HttpStatus in the ResponseEntity constructor actually sets the 
 HTTP response status for the client.
+
+How to run code after the Spring Context gets setup?
+Use ApplicationListener interface or @EventListener Annotation.
+
+1. ApplicationListener Interface
+Type: This is a more traditional and explicit approach to listen to events.
+Syntax: You need to implement the ApplicationListener<T> interface and override 
+the onApplicationEvent method.
+
+Example:
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ApplicationStartupListener implements ApplicationListener<ContextRefreshedEvent> {
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        // Logic to execute when the context is refreshed
+        System.out.println("Spring Application Context is refreshed");
+    }
+}
+
+** Here we are listening to ContextRefreshedEvent.
+
+** Note: To know more about events in SpringBoot.
+https://medium.com/hprog99/mastering-events-in-spring-boot-a-comprehensive-guide-86348f968fc6
+
+2. @EventListener Annotation
+
+Type: This is a more modern and flexible approach, relying on Spring's annotations.
+Syntax: You use the @EventListener annotation on a method to indicate that the 
+method should listen to a specific event.
+
+Example:
+
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
+import org.springframework.context.event.EventListener;
+
+@Component
+public class ApplicationStartupListener {
+
+    @EventListener
+    public void handleContextRefresh(ContextRefreshedEvent event) {
+        // Logic to execute when the context is refreshed
+        System.out.println("Spring Application Context is refreshed");
+    }
+}
+
+** Note: Both of these below event listeners using @EventListener are equivalent.
+
+Using @EventListener without specifying the event type in the annotation:
+@EventListener
+public void loadProductsIntoCache(ContextRefreshedEvent event) {
+
+}
+
+Using @EventListener with the event type specified:
+@EventListener(ContextRefreshedEvent.class)
+public void loadProductsIntoCache() {
+
+}
+
+Should we do the mapping of database query results to DTO object in the DAO layer
+or in service layer?
+It’s best to perform the mapping of database query results to DTO (Data Transfer 
+Object) objects in the DAO layer because:
+
+1. Single Responsibility:
+The DAO’s responsibility is to handle data access and data transformations from raw 
+database output to usable objects. By mapping to DTOs in the DAO, you keep the 
+service layer focused on business logic rather than data retrieval specifics.
+
+2. Encapsulation of Database Logic:
+If you ever change the underlying database schema or SQL query, you can make 
+adjustments in the DAO without modifying the service layer. The service layer 
+will simply use the DTOs returned by the DAO.
+
+3. Separation of Concerns:
+The service layer should remain decoupled from the database details. By receiving 
+a clean DTO from the DAO, the service class can focus solely on business logic, 
+rather than handling raw data or conversions.
+
+Isn't  the service layer only delegating calls to DAO, what business logic is 
+put in service layer?
+The service layer is meant to encapsulate business logic, it does more than simply 
+delegate calls to the DAO layer. The service layer makes the decision-making
+while performing a sequence of steps required to complete a task.
+
+Here’s how the service layer generally adds value:
+
+1. Coordination of Multiple DAOs:
+A service method often coordinates tasks across multiple DAOs. For example, 
+in a checkout process, a CheckoutService might:
+- Make entries of the cart items using InventoryDAO.
+- Generate reservation id for the cart using ReservationDAO.
+- Store cart items inventoryIds and reservation id using InventoryOrdersDAO.
+
+2. Application of Business Rules:
+- Check product availability information from Redis.
+- Deduct the availableQuantity information once enough stock is there.
+- Enforcing limits on certain actions (e.g., a user can only purchase a certain 
+number of items).
+
+3. Transaction Management:
+- The service layer is often where transactions are managed. If multiple DAO 
+operations need to occur as a single unit, the service layer will ensure they 
+succeed or fail together.
+
+- In Spring, you can manage this with @Transactional at the service layer, so that 
+if one part of a multi-step operation fails, the entire transaction can be rolled 
+back.
+
+4. Data Transformation and Aggregation:
+Sometimes, data needs to be processed or combined from different sources before 
+being returned. For example:
+- Merging data from multiple DAOs into a single result object.
+
+- Performing calculations, like aggregating order totals.
+
+The service layer can handle this logic, making it easier to reuse across different 
+parts of the application.
+
+5. Caching Logic:
+The service layer often decides when to use the cache or when to go directly to 
+the database.
+
+For instance, it could check if product details are in Redis, and if not, fetch 
+them from the database, store them in Redis, and then return them. This caching 
+logic keeps the DAO layer focused solely on data access
+
+6. Validation and Exception Handling:
+While some validations (like null checks) may occur in the DAO, more complex 
+validations often go in the service layer.
+
+For example:
+Verifying that a user has sufficient balance before making a purchase.
+
+How to retrieve selective fields from each row/entity instead of fetching the 
+entire entity and map it to a DTO?
+Use constructor expressions in HQL (Hibernate Query Language) to retrieve only 
+the desired fields and map them into a DTO (ProductIdQuantityDTO). 
+
+What are constructor expressions in HQL? 
+In Hibernate, constructor expressions allow you to select specific fields from an 
+entity and directly map them to a new object (usually a DTO or a custom result object) 
+in a single query. This is an efficient way to retrieve only the fields you need, 
+instead of fetching the entire entity, which can be particularly useful in situations 
+where you want to optimize performance and reduce memory usage.
+
+A constructor expression in HQL is a part of the SELECT clause that instantiates a 
+Java object using the new keyword.
+
+
+Example:
+Query<ProductIdQuantityDTO> query = session.createQuery(
+    "SELECT new com.example.dto.ProductIdQuantityDTO(p.productId, p.availableQuantity) " + 
+    "FROM Product p", ProductIdQuantityDTO.class);
+
+List<ProductIdQuantityDTO> resultList = query.getResultList();
+
+Explanation:
+- The SELECT clause uses the new keyword to create a new ProductIdQuantityDTO object 
+for each row in the result set.
+
+- Only the productId and availableQuantity fields are selected from the Product 
+entity, so only these fields will be fetched from the database.
+
+- The ProductIdQuantityDTO.class tells Hibernate to map the results to instances 
+of the ProductIdQuantityDTO class.
+
+Constructor Expression Limitations:
+
+1. Constructor Matching:
+The constructor expression requires that the DTO class must have a constructor 
+that matches the parameters you are selecting. The parameter types in the 
+constructor must match the types of the fields you're selecting in the query.
+
+2. No Nested Objects:
+Constructor expressions cannot be used to instantiate nested objects (e.g., a 
+list of entities). You can only map directly to simple objects (e.g., DTOs, 
+primitive values).
+
+What is @Transactional(readOnly = true)?
+For read-only database operations, using @Transactional(readOnly = true) is generally 
+better than not using it at all. Here's why:
+
+1. Optimized for Performance:
+
+- When you mark a transaction as readOnly, the underlying database can optimize 
+the execution.
+
+- It indicates that no changes will be made to the database, so the database 
+doesn't need to track changes to entities, which can improve performance.
+
+2. Transaction Isolation:
+
+By using @Transactional(readOnly = true), you ensure that the database transaction 
+will use the correct isolation level for read operations, avoiding the risks 
+associated with dirty reads, non-repeatable reads, or phantom reads, depending 
+on your database configuration.
+
+Why using @PostConstruct on
+@Override
+@Transactional(readOnly = true)
+public void loadProductsIntoCache() present in 
+ProductLoadServiceImpl class not a good idea?
+
+Because we would get:
+org.springframework.beans.factory.BeanCreationException: Error creating bean 
+with name 'productLoadServiceImpl': Invocation of init method failed; nested 
+exception is org.hibernate.HibernateException: Could not obtain 
+transaction-synchronized Session for current thread
+
+This error occurs because:
+When @Transactional is used in Spring, it ensures that the method is executed 
+within a transaction context and that Hibernate can access the current 
+session.
+
+And The @PostConstruct method is called after the bean is initialized, and it's 
+executed before the Spring context is fully set up for transaction management.
+

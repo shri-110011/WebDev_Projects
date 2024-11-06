@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.shri.ecommercebackend.dto.CategoryProductsDTO;
 import com.shri.ecommercebackend.dto.ProductDTO;
+import com.shri.ecommercebackend.dto.ProductIdQuantityDTO;
 import com.shri.ecommercebackend.entity.Category;
 import com.shri.ecommercebackend.exception.CategoryNotFoundException;
 
@@ -54,6 +55,18 @@ public class ProductDAOImpl implements ProductDAO {
 		
 		return new CategoryProductsDTO(category.getCategoryId(), category.getCategoryName(), productDTOs);
 	
+	}
+
+	@Override
+	public List<ProductIdQuantityDTO> getProductsIdAndQuantity() {
+		Session currentSession = sessionFactory.getCurrentSession();
+
+		Query<ProductIdQuantityDTO> query = currentSession
+				.createQuery("select new com.shri.ecommercebackend.dto.ProductIdQuantityDTO(p.productId, availableQuantity)" + 
+				"from Product p", 
+				ProductIdQuantityDTO.class);
+		
+		return query.getResultList();
 	}
 
 }
