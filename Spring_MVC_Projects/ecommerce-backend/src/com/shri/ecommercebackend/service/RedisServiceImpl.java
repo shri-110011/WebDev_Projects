@@ -30,19 +30,8 @@ public class RedisServiceImpl implements RedisService {
 		                    Integer.toString(productIdQuantityDTO.getAvailableQuantity()));
 		}
 		
-//		String productDataArray[] = productData.entrySet().stream()
-//		         .flatMap(e -> Stream.of(e.getKey(), e.getValue()))
-//		         .toArray(String[]::new);
-//		
-//		System.out.println(Arrays.toString(productDataArray));
-		
 		jedis.hmset("productsIdAndQuantity", productData);
 		
-//		for(ProductIdQuantityDTO productIdQuantityDTO : productIdQuantityDTOs) {
-//			jedis.set(Integer.toString(productIdQuantityDTO.getProductId()), 
-//					Integer.toString(productIdQuantityDTO.getAvailableQuantity())
-//					);
-//		}
 		
 	}
 
