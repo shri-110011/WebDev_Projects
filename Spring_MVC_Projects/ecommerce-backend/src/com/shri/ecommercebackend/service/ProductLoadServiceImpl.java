@@ -32,7 +32,6 @@ public class ProductLoadServiceImpl implements ProductLoadService {
 		redisService.loadProductsIdAndQuantityIntoRedis(productIdQuantityDTO);
 		
 		System.out.println("Products loaded into Redis...");
-		
 	}
 	
 }

@@ -16,13 +16,14 @@ email_id -> (user_id, user_name)
 
 Table users is in BCNF.
 
-Table products:
+Table product_price_history:
 Fields:
 product_id: mediumint primary key auto increment
 product_name: varchar(45) not null
 price: decimal(6,2) not null
 category_id: tinyint not null
 available_quantity: int not null
+price_version: smallint not null
 
 Functional Dependencies:
 product_id -> (product_name, price, category_id, available_quantity)
@@ -201,6 +202,30 @@ inventory_id -> (inventory_id, order_id, reservation_id)
 
 Table inventory_orders is in BCNF.
 
+Table product_price_history:
+Fields:
+history_id mediumint primary key
+product_id mediumint
+old_price decimal(6,2)
+new_price decimal(6,2)
+old_version smallint
+new_version smallint
+price_change_datetime timestamp
+
+product_id is a foreign key.
+
+Functional Dependencies:
+(history_id) -> (history_id, product_id, old_price, new_price, old_version, 
+new_version, price_change_datetime)
+
+(product_id, new_version) -> (history_id, product_id, old_price, new_price, 
+old_version, new_version, price_change_datetime)
+
+(product_id, old_version) -> (history_id, product_id, old_price, new_price, 
+old_version, new_version, price_change_datetime)
+
+Table product_price_history is in BCNF.
+
 Whenever an order cancellation take place then the order_cancellation_datetime in 
 orders table and status_change_datetime in inventory can have some difference maybe 
 in seconds, is this ok?
@@ -283,29 +308,3 @@ adjustments in inventory table?
 We make use of the status column. Only process those returns, reservations and 
 adjustments in inventory table that have status as 'active'.
 
-What is flow to make reservations during checkout?
-1. Capture Checkout Items: When the user initiates checkout, gather all items in 
-the cart.
-
-2. Reserve Items in Inventory Table:
-
-Insert the items into the inventory table to indicate that they are reserved.
-
-Capture the inventory_ids of these items.
-
-3. Create Reservation Record:
-
-Create a new entry in the reservations table with the following details:
-user_id: to associate the reservation with the specific user.
-expires_at: to indicate when the reservation should expire.
-Generate a reservation_id.
-
-4. Link Reservations to Inventory:
-
-Insert each reserved item’s inventory_id and the reservation_id into the 
-inventory_orders table to associate the reservation with specific items.
-
-5. Store Reservation Data in Session (or Return to Frontend):
-
-Store the reservation_id in the user’s session, or send it back to the frontend if 
-you need the reservation to persist across requests.

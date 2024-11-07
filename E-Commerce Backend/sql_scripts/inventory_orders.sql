@@ -13,4 +13,4 @@ create table inventory_orders(
 
 select * from inventory_orders;
 
-desc inventory_orders; 
+desc inventory_orders;

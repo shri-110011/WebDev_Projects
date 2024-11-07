@@ -466,3 +466,158 @@ session.
 And The @PostConstruct method is called after the bean is initialized, and it's 
 executed before the Spring context is fully set up for transaction management.
 
+What is flow to make reservations during checkout?
+1. Capture Checkout Items: When the user initiates checkout, gather all items in 
+the cart and check the availableQuantity for prdocuts in Redis.
+    1.1 If some cart items are not there in Redis make database call to fetch them and 
+    store them in Redis.
+    1.2 Update the availableQuantity by decrementing it if there is enough stock.
+    1.3 In case some products are not available then proceed with partial reservation.
+
+2. Reserve Items in Inventory Table:
+
+Insert the items into the inventory table to indicate that they are reserved.
+
+Capture the inventory_ids of these items.
+
+3. Create Reservation Record:
+
+Create a new entry in the reservations table with the following details:
+user_id: to associate the reservation with the specific user.
+expires_at: to indicate when the reservation should expire.
+Generate a reservation_id.
+
+4. Link Reservations to Inventory:
+
+Insert each reserved item’s inventory_id and the reservation_id into the 
+inventory_orders table to associate the reservation with specific items.
+
+5. Store Reservation Data in Session (or Return to Frontend):
+
+Store the reservation_id in the user’s session, or send it back to the frontend if 
+you need the reservation to persist across requests.
+
+What is partial reservation?
+In case when we are dealing with a mix of available and unavailable items in 
+the cart, we would make reservation for the items that have enough stock. And 
+in the checkout api response we would inform the reserved and unavailable items.
+
+What kind of response should the checkout API send in case of partial 
+reservation approach?
+
+HTTP Status Code:
+Use 200 OK if at least one item was reserved successfully.
+400 Bad Request if none of the items could be reserved due to insufficient stock.
+
+Response Structure:
+{
+  "reservationStatus": "partial",
+  "reservationId": "12345",
+  "message": "Some items could not be reserved due to insufficient stock.",
+  "reservedItems": [
+    {
+      "productId": "1001",
+      "quantity": 2,
+      "status": "reserved"
+    },
+    {
+      "productId": "1002",
+      "quantity": 1,
+      "status": "reserved"
+    }
+  ],
+  "unavailableItems": [
+    {
+      "productId": "1003",
+      "requestedQuantity": 3,
+      "status": "not reserved"
+    },
+    {
+      "productId": "1004",
+      "requestedQuantity": 1,
+      "status": "not reserved"
+    }
+  ],
+  "invalidItems": [
+    {
+      "productId": "1005",
+      "status": "not found"
+    }
+  ]
+}
+
+What if some items are not prsent in Redis and in the database ?
+If a product is missing (not found in Redis or the database), record it as an 
+invalid item in the response but proceed with the reservation for the other items.
+
+In the checkout api response under the "invalidItems" key we can find 
+the invalid items.
+
+Isn't specifying the price in the request body during checkout risky because 
+the price can be tampered?
+Yes the user can tamper the request body and set a lower price for a product.
+To avoid this we can use Price Versioning Strategy.
+
+What is this Price Versioning Strategy and how does it work?
+In the request body during checkout we can add an extra priceVersion
+key. The backend will use the productId and priceVersion to check if the price
+in request match the price in server.
+
+If the prices don't match we can we can keep track of those items and send them 
+back in the checkout api repsonse under the "priceMismatchItems" key.
+
+Response Structure:
+{
+	"reservationStatus": "partial",
+  	"reservationId": "12345",
+  	"message": "Some items could not be reserved due to insufficient stock.",
+  	"reservedItems": [
+		{
+			"productId": "1001",
+			"quantity": 2,
+			"status": "reserved"
+		},
+		{
+			"productId": "1002",
+			"quantity": 1,
+			"status": "reserved"
+		}
+	],
+	"unavailableItems": [
+		{
+		"productId": "1003",
+		"requestedQuantity": 3,
+		"status": "not reserved"
+		},
+		{
+		"productId": "1004",
+		"requestedQuantity": 1,
+		"status": "not reserved"
+		}
+  	],
+  	"invalidItems": [
+		{
+			"productId": "1005",
+			"status": "not found"
+		}
+   	],
+  	"priceMismatchItems": [
+		{
+			"productId": 1006,
+			"requestedPrice": 150,
+			"currentPrice": 160,
+			"priceVersion": 4,
+			"message": "Price has changed, unable to reserve at the requested price."
+		}
+	]
+}
+
+If a user sees the old price in Redis/products table for a product during checkout 
+after that product's price has been updated in product_price_history. Can we 
+tolearate the small gap b/w price updates in the product_price_history table and the 
+products table? 
+
+Yes we can tolearate the gap of few seconds.
+
+
+

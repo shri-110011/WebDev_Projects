@@ -8,6 +8,7 @@ create table products (
     price decimal(8, 2) not null,
     category_id tinyint not null,
     available_quantity int not null,
+    price_version smallint default 1 not null,
     foreign key(category_id) references categories(category_id)
 ) auto_increment = 1000001;
 
@@ -29,6 +30,10 @@ values
 ('Mother Dairy Paneer, 200g', 18, 93, 135),
 ('Mother Dairy Curd, 400ml', 18, 50, 122),
 ('Amul Kesar Milk, 100g', 18, 20, 80);
+
+select * from prodcuts;
+
+desc products;
 
 select * from products;
 
