@@ -31,7 +31,7 @@ values
 ('Mother Dairy Curd, 400ml', 18, 50, 122),
 ('Amul Kesar Milk, 100g', 18, 20, 80);
 
-select * from prodcuts;
+select * from products;
 
 desc products;
 
