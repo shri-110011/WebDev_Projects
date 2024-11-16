@@ -28,7 +28,8 @@ Method: POST
             {
                 productId: $productId,
                 quantity: $quantity,
-                pricePerUnit: $pricePerUnit
+                pricePerUnit: $pricePerUnit,
+                priceVersion: $priceVersion
             },
             ...
         ]

@@ -468,7 +468,7 @@ executed before the Spring context is fully set up for transaction management.
 
 What is flow to make reservations during checkout?
 1. Capture Checkout Items: When the user initiates checkout, gather all items in 
-the cart and check the availableQuantity for prdocuts in Redis.
+the cart and check the availableQuantity for prodcuts in Redis.
     1.1 If some cart items are not there in Redis make database call to fetch them and 
     store them in Redis.
     1.2 Update the availableQuantity by decrementing it if there is enough stock.
@@ -556,12 +556,11 @@ the invalid items.
 Isn't specifying the price in the request body during checkout risky because 
 the price can be tampered?
 Yes the user can tamper the request body and set a lower price for a product.
-To avoid this we can use Price Versioning Strategy.
+To avoid this we can use Price Validation Strategy.
 
-What is this Price Versioning Strategy and how does it work?
-In the request body during checkout we can add an extra priceVersion
-key. The backend will use the productId and priceVersion to check if the price
-in request match the price in server.
+What is this Price Validation Strategy and how does it work?
+In the request body during checkout we can add price key. The backend will use the productId to check 
+if the price in request match the latest price in server.
 
 If the prices don't match we can we can keep track of those items and send them 
 back in the checkout api repsonse under the "priceMismatchItems" key.
@@ -606,18 +605,51 @@ Response Structure:
 			"productId": 1006,
 			"requestedPrice": 150,
 			"currentPrice": 160,
-			"priceVersion": 4,
 			"message": "Price has changed, unable to reserve at the requested price."
 		}
 	]
 }
 
-If a user sees the old price in Redis/products table for a product during checkout 
+If a user sees the old price in Redis/products table for a product during checkout, 
 after that product's price has been updated in product_price_history. Can we 
 tolearate the small gap b/w price updates in the product_price_history table and the 
 products table? 
 
 Yes we can tolearate the gap of few seconds.
 
+Why do we have product_price_history table?
+Because it enables us to keep track of price changes for each product by using means like 
+priceVersion, and priceChangeTime. These will be useful for analytics purposes.  
 
+How to prevent code duplication in DTOs and also be able to customize the serialization process for
+the DTOs?
+Use inheritance or object composition to prevent code duplication in DTOs.
+
+Example:
+ProductDTO and ProductInventoryDTO have overlapping fields productId, availableQuantity, price.
+And ProductDTO has an additional field productName.
+
+So we can use object composition and have a reference variable of type ProductInventoryDTO in 
+ProductDTO class.
+
+And this object composition will lead to inclusion of 'productInventoryDTO' as key in the response.
+To avoid that we need to customize the serialization by creating a custom serializer for ProductDTO.
+
+Example:
+//Custom serializer for ProductDTO
+class ProductDTOJsonSerializer extends JsonSerializer<ProductDTO> {
+	
+	 @Override
+	 public void serialize(ProductDTO value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+	     gen.writeStartObject();
+	     gen.writeNumberField("productId", value.getProductInventoryDTO().getProductId());
+	     gen.writeNumberField("availableQuantity", value.getProductInventoryDTO().getAvailableQuantity());
+	     gen.writeNumberField("price", value.getProductInventoryDTO().getPrice());
+	     gen.writeStringField("productName", value.getProductName());
+	     gen.writeEndObject();
+	 }
+ 
+}
+
+And annotate ProductDTO by @JsonSerialize(using = ProductDTOJsonSerializer.class)
 

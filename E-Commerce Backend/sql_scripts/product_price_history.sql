@@ -5,7 +5,7 @@ drop table if exists product_price_history;
 create table product_price_history (
 	history_id mediumint primary key auto_increment,
 	product_id mediumint not null,
-    old_price decimal(8,2) null,
+    old_price decimal(8,2),
     new_price decimal(8,2) not null,
     old_version smallint,
     new_version smallint not null,

@@ -3,7 +3,7 @@ package com.shri.ecommercebackend.dao;
 import java.util.List;
 
 import com.shri.ecommercebackend.dto.CategoryProductsDTO;
-import com.shri.ecommercebackend.dto.ProductIdQuantityDTO;
+import com.shri.ecommercebackend.dto.ProductInventoryDTO;
 import com.shri.ecommercebackend.entity.Category;
 
 public interface ProductDAO {
@@ -12,6 +12,6 @@ public interface ProductDAO {
 	
 	public CategoryProductsDTO getProductsByCategory(byte categoryId);
 	
-	public List<ProductIdQuantityDTO> getProductsIdAndQuantity();
+	public List<ProductInventoryDTO> getProductsInventoryInfo(List<Integer> productIds);
 
 }

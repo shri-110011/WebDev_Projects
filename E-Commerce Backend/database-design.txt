@@ -26,7 +26,7 @@ available_quantity: int not null
 price_version: smallint not null
 
 Functional Dependencies:
-product_id -> (product_name, price, category_id, available_quantity)
+product_id -> (product_name, price, category_id, available_quantity, price_version)
 
 Table products is in BCNF.
 

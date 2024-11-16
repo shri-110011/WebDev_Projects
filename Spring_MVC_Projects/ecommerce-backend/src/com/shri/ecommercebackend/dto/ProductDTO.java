@@ -1,38 +1,52 @@
 package com.shri.ecommercebackend.dto;
 
-import java.math.BigDecimal;
+import java.io.IOException;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.shri.ecommercebackend.entity.Product;
+
+@JsonSerialize(using = ProductDTOJsonSerializer.class)
 public class ProductDTO {
-	
-	private int productID;
-	
-	private String productName;
-	
-	private BigDecimal productPrice;
-	
-	private int availableQuantity;
 
-	public ProductDTO(int productID, String productName, BigDecimal productPrice, int availableQuantity) {
-		this.productID = productID;
-		this.productName = productName;
-		this.productPrice = productPrice;
-		this.availableQuantity = availableQuantity;
+	private ProductInventoryDTO productInventoryDTO;
+
+	private String productName;
+
+	public ProductDTO(Product product) {
+		this.productInventoryDTO = new ProductInventoryDTO(product.getProductId(), 
+				product.getAvailableQuantity(), product.getPrice());
+		this.productName = product.getProductName();
 	}
 
-	public int getProductID() {
-		return productID;
+	public ProductInventoryDTO getProductInventoryDTO() {
+		return productInventoryDTO;
 	}
 
 	public String getProductName() {
 		return productName;
 	}
 
-	public BigDecimal getProductPrice() {
-		return productPrice;
+	@Override
+	public String toString() {
+		return "ProductDTO [productInventoryDTO=" + productInventoryDTO + ", productName=" + productName + "]";
 	}
+	
+}
 
-	public int getAvailableQuantity() {
-		return availableQuantity;
-	}
-
+//Custom serializer for ProductDTO
+class ProductDTOJsonSerializer extends JsonSerializer<ProductDTO> {
+	
+	 @Override
+	 public void serialize(ProductDTO value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+	     gen.writeStartObject();
+	     gen.writeNumberField("productId", value.getProductInventoryDTO().getProductId());
+	     gen.writeNumberField("availableQuantity", value.getProductInventoryDTO().getAvailableQuantity());
+	     gen.writeNumberField("price", value.getProductInventoryDTO().getPrice());
+	     gen.writeStringField("productName", value.getProductName());
+	     gen.writeEndObject();
+	 }
+ 
 }

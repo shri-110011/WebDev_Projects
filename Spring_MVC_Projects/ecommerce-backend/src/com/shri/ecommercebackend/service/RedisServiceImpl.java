@@ -7,9 +7,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.shri.ecommercebackend.dto.ProductIdQuantityDTO;
+import com.shri.ecommercebackend.dto.ProductInventoryDTO;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
 
 @Service
 public class RedisServiceImpl implements RedisService {
@@ -22,17 +23,19 @@ public class RedisServiceImpl implements RedisService {
 	}
 
 	@Override
-	public void loadProductsIdAndQuantityIntoRedis(List<ProductIdQuantityDTO> productIdQuantityDTOs) {
+	public void loadProductsIdAndQuantityIntoRedis(List<ProductInventoryDTO> productInventoryDTOs) {
 		
 		Map<String, String> productData = new HashMap<>();
-		for(ProductIdQuantityDTO productIdQuantityDTO : productIdQuantityDTOs) {
-		    productData.put(Integer.toString(productIdQuantityDTO.getProductId()), 
-		                    Integer.toString(productIdQuantityDTO.getAvailableQuantity()));
+		Pipeline pipeline = jedis.pipelined();
+		
+		for(ProductInventoryDTO productInventoryDTO : productInventoryDTOs) {
+			productData.put("availableQuantity", Integer.toString(productInventoryDTO.getAvailableQuantity()));
+			productData.put("price", productInventoryDTO.getPrice().toString());
+			
+			pipeline.hmset("productsInventory:" + Integer.toString(productInventoryDTO.getProductId()), productData);
 		}
 		
-		jedis.hmset("productsIdAndQuantity", productData);
-		
-		
+		pipeline.sync();		
 	}
 
 }

@@ -19,15 +19,6 @@ public class CheckoutDAOImpl implements CheckoutDAO {
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		/* Todo: Get lock on the rows in Products table where product id matches the one of cart items.
-		 * 
-		 * Check if the available quantity is sufficient to meet the ask.
-		 * 
-		 * If not then send error message listing the products whose ask can't be fulifilled.
-		 * 
-		 * Else reserve items by updating the available quantity.
-		 */
-		
 		return 987;
 	}
 	
