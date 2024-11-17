@@ -573,39 +573,33 @@ Response Structure:
   	"reservedItems": [
 		{
 			"productId": "1001",
-			"quantity": 2,
-			"status": "reserved"
+			"quantity": 2
 		},
 		{
 			"productId": "1002",
-			"quantity": 1,
-			"status": "reserved"
+			"quantity": 1
 		}
 	],
 	"unavailableItems": [
 		{
-		"productId": "1003",
-		"requestedQuantity": 3,
-		"status": "not reserved"
+			"productId": "1003",
+			"requestedQuantity": 3
 		},
 		{
-		"productId": "1004",
-		"requestedQuantity": 1,
-		"status": "not reserved"
+			"productId": "1004",
+			"requestedQuantity": 1
 		}
   	],
   	"invalidItems": [
 		{
-			"productId": "1005",
-			"status": "not found"
+			"productId": "1005"
 		}
    	],
   	"priceMismatchItems": [
 		{
 			"productId": 1006,
 			"requestedPrice": 150,
-			"currentPrice": 160,
-			"message": "Price has changed, unable to reserve at the requested price."
+			"currentPrice": 160
 		}
 	]
 }

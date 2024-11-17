@@ -11,5 +11,4 @@ public class ReserveItemsResponse {
 	public int getReservationId() {
 		return reservationId;
 	}
-
 }
