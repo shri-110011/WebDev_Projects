@@ -57,6 +57,8 @@ public class ProductDAOImpl implements ProductDAO {
 
 	@Override
 	public List<ProductInventoryDTO> getProductsInventoryInfo(List<Integer> productIds) {
+		if(productIds.size() == 0) return List.of();
+				
 		Session currentSession = sessionFactory.getCurrentSession();
 
 		Query<ProductInventoryDTO> query = currentSession.createQuery(

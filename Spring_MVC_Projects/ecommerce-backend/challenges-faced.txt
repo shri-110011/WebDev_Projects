@@ -569,7 +569,6 @@ Response Structure:
 {
 	"reservationStatus": "partial",
   	"reservationId": "12345",
-  	"message": "Some items could not be reserved due to insufficient stock.",
   	"reservedItems": [
 		{
 			"productId": "1001",
@@ -583,11 +582,13 @@ Response Structure:
 	"unavailableItems": [
 		{
 			"productId": "1003",
-			"requestedQuantity": 3
+			"requestedQuantity": 3,
+			"message": "Only 2 left in stock"
 		},
 		{
 			"productId": "1004",
-			"requestedQuantity": 1
+			"requestedQuantity": 1,
+			"message": "Out of stock" 
 		}
   	],
   	"invalidItems": [

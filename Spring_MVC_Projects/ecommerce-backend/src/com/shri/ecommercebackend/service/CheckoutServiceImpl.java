@@ -1,15 +1,16 @@
 package com.shri.ecommercebackend.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.shri.ecommercebackend.dao.CheckoutDAO;
 import com.shri.ecommercebackend.dao.ProductDAO;
+import com.shri.ecommercebackend.dto.InvalidItemDTO;
+import com.shri.ecommercebackend.dto.PriceMismatchItemDTO;
 import com.shri.ecommercebackend.dto.ProductInventoryDTO;
+import com.shri.ecommercebackend.dto.ReservedItemDTO;
+import com.shri.ecommercebackend.dto.UnavailableItemDTO;
+import com.shri.ecommercebackend.response.ReservationStatus;
+import com.shri.ecommercebackend.response.ReserveItemsResponse;
 import com.shri.ecommercebackend.validation.CartItem;
 import com.shri.ecommercebackend.validation.ReserveItemsRequest;
 
@@ -28,19 +35,19 @@ public class CheckoutServiceImpl implements CheckoutService {
 
 	@Autowired
 	private CheckoutDAO checkoutDAO;
+	
+	@Autowired
+	private ProductDAO productDAO;
 
 	@Autowired
 	private Jedis jedis;
 
 	@Autowired
-	private ProductDAO productDAO;
-
-	@Autowired
-	private ProductLoadService productLoadService;
+	private RedisService redisService;
 
 	@Override
 	@Transactional
-	public int reserveCartItems(ReserveItemsRequest reserveItemsRequest) {
+	public ReserveItemsResponse reserveCartItems(ReserveItemsRequest reserveItemsRequest) {
 		/*
 		 * Todos:
 		 * 
@@ -67,79 +74,81 @@ public class CheckoutServiceImpl implements CheckoutService {
 		 * - And save the reserved items in database.
 		 * 
 		 */
-
+		
 		List<CartItem> cartItems = reserveItemsRequest.getCartItems();
-		Map<String, List<Integer>> map = fetchItemsNotPresentInCacheFromDB(cartItems);
-
-		List<Integer> invalidItemsProductIds = getInvalidItemsProductIds(map.get("itemsNotPresentInCache"));
-		List<Integer> productIdsOfItemsPresentInCache = map.get("itemsPresentInCache");
 		
-		int[] validationResults = validateStockAvailabilityAndPrice(cartItems, invalidItemsProductIds);
-
-		return checkoutDAO.reserveCartItems(reserveItemsRequest);
-	}
-
-	private Map<String, List<Integer>> checkForCartItemsInCache(List<CartItem> cartItems) {
-		Map<String, List<Integer>> map = new HashMap<>();
-		List<Integer> productIdsOfItemsPresentInCache = new ArrayList<>();
-		List<Integer> productIdsOfItemsNotPresentInCache = new ArrayList<>();
-
-		for (CartItem cartItem : cartItems) {
-			Map<String, String> productInventoryInfo = jedis.hgetAll("productsInventory:" + cartItem.getProductId());
-			System.out.println("productInventoryInfo: " + productInventoryInfo);
-
-			if (productInventoryInfo.size() == 0) {
-				productIdsOfItemsNotPresentInCache.add(cartItem.getProductId());
-			}
-			else {
-				productIdsOfItemsPresentInCache.add(cartItem.getProductId());
-			}
-		}
+		Map<Integer, InvalidItemReason> invalidItemsMap = getInvalidItems(cartItems);
 		
-		map.put("itemsPresentInCache", productIdsOfItemsPresentInCache);
-		map.put("itemsNotPresentInCache", productIdsOfItemsNotPresentInCache);
-
-		System.out.println("Products not present in Redis: " + productIdsOfItemsNotPresentInCache);
-
-		return map;
+		List<String> luaScriptResults = executeLuaScriptToReserveItems(cartItems, invalidItemsMap);
+		
+		int reservationId =  checkoutDAO.reserveCartItems(reserveItemsRequest);
+		
+		return prepareReserveItemsResponse(luaScriptResults, cartItems, 
+				invalidItemsMap, reservationId);
 	}
-
-	private Map<String, List<Integer>> fetchItemsNotPresentInCacheFromDB(List<CartItem> cartItems) {
-		Map<String, List<Integer>> map = checkForCartItemsInCache(cartItems);
+	
+	private Map<Integer, InvalidItemReason> getInvalidItems(List<CartItem> cartItems) {
+		List<Integer> productIds = cartItems.stream()
+				.map(cartItem -> cartItem.getProductId())
+				.collect(Collectors.toList());
+		
+		List<Integer> productIdsOfItemsNotPresentInCache = redisService
+				.getProductIdsOfItemsNotPresentInCache(productIds);
+		
 		List<ProductInventoryDTO> productInventoryDTO = productDAO
-				.getProductsInventoryInfo(map.get("itemsNotPresentInCache"));
-		productLoadService.loadProductsIntoCache(productInventoryDTO);
-
-		return map;
-	}
-
-	private List<Integer> getInvalidItemsProductIds(List<Integer> productIdsOfItemsNotPresentInCache) {
-		List<Integer> invalidItemsProductIds = new ArrayList<>();
-		for (Integer productIdOfItemNotPresentInCache : productIdsOfItemsNotPresentInCache) {
-			Map<String, String> productInventoryInfo = jedis
-					.hgetAll("productsInventory:" + productIdOfItemNotPresentInCache);
-
-			if (productInventoryInfo.size() == 0) {
-				invalidItemsProductIds.add(productIdOfItemNotPresentInCache);
-			}
+				.getProductsInventoryInfo(productIdsOfItemsNotPresentInCache);
+		
+		redisService.loadProductsIntoCache(productInventoryDTO);
+		
+		List<Integer> productIdsNotFoundInDB = redisService.getProductIdsOfItemsNotPresentInCache(
+				productIdsOfItemsNotPresentInCache);
+		
+		Map<Integer, InvalidItemReason> invalidItemsMap = new TreeMap<Integer, InvalidItemReason>();
+		
+		
+		
+		for(Integer productIdNotFoundInDB : productIdsNotFoundInDB) {
+			invalidItemsMap.put(productIdNotFoundInDB, InvalidItemReason.Item_Not_Found_In_DB);
 		}
-		return invalidItemsProductIds;
+		
+		cartItems.stream()
+				.filter(cartItem -> !invalidItemsMap.containsKey(cartItem.getProductId()))
+				.forEach(cartItem -> {
+					boolean invalidPrice = false, invalidQuantity = false;
+					if(cartItem.getQuantity() <= 0) {
+						invalidPrice = true;
+					}
+					if(cartItem.getPricePerUnit().compareTo(BigDecimal.ZERO) <= 0) {
+						invalidQuantity = true;
+					}
+					
+					if(invalidQuantity && invalidPrice) {
+						invalidItemsMap.put(cartItem.getProductId(), InvalidItemReason.Invalid_Quantity_And_Price);
+					}
+					else if(invalidQuantity) {
+						invalidItemsMap.put(cartItem.getProductId(), InvalidItemReason.Invalid_Quantity);
+					}
+					else if(invalidPrice) {
+						invalidItemsMap.put(cartItem.getProductId(), InvalidItemReason.Invalid_Price);
+					}
+				});
+		return invalidItemsMap;
 	}
 
-	private int[] validateStockAvailabilityAndPrice(List<CartItem> cartItems, 
-			List<Integer> invalidItemsProductIds) {
+	private List<String> executeLuaScriptToReserveItems(List<CartItem> cartItems, 
+			Map<Integer, InvalidItemReason> invalidItemsMap) {
 		String luaScript;
 		try {
 			luaScript = new String(Files.readAllBytes(Paths.get("D:\\WebDev_Projects\\Spring_MVC_Projects\\ecommerce-backend\\src\\resources\\decrement_stock.lua")));
-			
-			Set<Integer> inValidProductIdsSet = new HashSet<>(invalidItemsProductIds);
 
 			// Keys and Arguments setup
 		    List<String> keys = new ArrayList<>();
 		    List<String> args = new ArrayList<>(); // qty and price pairs for each product
-
+		    
+		    int productId;
 		    for(CartItem cartItem : cartItems) {
-		    	if(!inValidProductIdsSet.contains(cartItem.getProductId())) {
+		    	productId = cartItem.getProductId();
+		    	if(!invalidItemsMap.containsKey(productId)) {
 		    		keys.add("productsInventory:" + cartItem.getProductId());
 		    		args.add(Integer.toString(cartItem.getQuantity()));
 		    		args.add(cartItem.getPricePerUnit().toString());
@@ -153,15 +162,72 @@ public class CheckoutServiceImpl implements CheckoutService {
 		    Object result = jedis.eval(luaScript, keys, args);
 		    System.out.println("Script result: " + result);
 		    
-		    return (int[])result;
+		    return (List<String>)result;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return new int[0];
+			return null;
 		}
 	}
 	
-	private ReserveItemsResponse prepareReserveItemsResponse(int[] validationResults, 
-			List<CartItem> cartItems, List<Integer> invalidItems) {
-		return null;
+	private ReserveItemsResponse prepareReserveItemsResponse(List<String> luaScriptResults, 
+			List<CartItem> cartItems, 
+			Map<Integer, InvalidItemReason> invalidItemsMap, int reservationId) {
+		List<InvalidItemDTO> invalidItemsDTOs = new ArrayList<>();
+		List<UnavailableItemDTO> unavailableItemsDTOs = new ArrayList<>();
+		List<PriceMismatchItemDTO> priceMismatchItemsDTOs = new ArrayList<>();
+		List<ReservedItemDTO> reservedItemsDTOs = new ArrayList<>();
+				
+		int i = 0, productId;
+	    for(CartItem cartItem : cartItems) {
+	    	productId = cartItem.getProductId();
+	    	if(invalidItemsMap.containsKey(productId)) {
+	    		if(invalidItemsMap.get(productId) == InvalidItemReason.Invalid_Quantity_And_Price) {
+	    			invalidItemsDTOs.add(new InvalidItemDTO(productId, "Price and Quantity must be greater than 0."));
+	    		}
+	    		else if(invalidItemsMap.get(productId) == InvalidItemReason.Invalid_Quantity) {
+	    			invalidItemsDTOs.add(new InvalidItemDTO(productId, "Quantity must be greater than 0."));
+	    		}
+	    		else if(invalidItemsMap.get(productId) == InvalidItemReason.Invalid_Price) {
+	    			invalidItemsDTOs.add(new InvalidItemDTO(productId, "Price must be greater than 0."));
+	    		}
+	    		else if(invalidItemsMap.get(productId) == InvalidItemReason.Item_Not_Found_In_DB) {
+	    			invalidItemsDTOs.add(new InvalidItemDTO(productId, "Not found."));
+	    		}
+	    	}
+	    	else {
+				String statusCode = luaScriptResults.get(i);
+				if(statusCode.equals("0")) {
+					String message = luaScriptResults.get(i+1);
+					unavailableItemsDTOs.add(new UnavailableItemDTO(productId, 
+							cartItem.getQuantity(), message));
+					i += 2;
+				}
+				else if(statusCode.equals("1")) {
+					String currentPrice = luaScriptResults.get(i+1);
+					priceMismatchItemsDTOs.add(new PriceMismatchItemDTO(productId, 
+							cartItem.getPricePerUnit(), new BigDecimal(currentPrice)));
+					i += 2;
+				}
+				else if(statusCode.equals("2")) {
+					reservedItemsDTOs.add(new ReservedItemDTO(productId, cartItem.getQuantity()));
+					i += 1;
+				}
+	    	}
+		}
+		
+	    ReservationStatus reservationStatus = ReservationStatus.Failed;
+		
+		if(unavailableItemsDTOs.size() == 0 && reservedItemsDTOs.size() > 0) reservationStatus = ReservationStatus.Complete;
+		else if(unavailableItemsDTOs.size() > 0 && reservedItemsDTOs.size() > 0) reservationStatus = ReservationStatus.Partial;
+		
+		return new ReserveItemsResponse(reservationId, reservationStatus, reservedItemsDTOs, unavailableItemsDTOs,
+				invalidItemsDTOs, priceMismatchItemsDTOs);
 	}
+}
+
+enum InvalidItemReason {
+	Item_Not_Found_In_DB,
+	Invalid_Quantity,
+	Invalid_Price,
+	Invalid_Quantity_And_Price
 }
