@@ -22,8 +22,9 @@ public class CheckoutRestController {
 	@Autowired
 	private CheckoutService checkoutService;
 	
-	@PostMapping(path = "/v1/reserve-items")
-	public ResponseEntity<ReserveItemsResponse> reserveCartItems(@Valid @RequestBody ReserveItemsRequest reserveItemsRequest) {
+	@PostMapping(path = "/v1/reserve-items", produces="application/json")
+	public ResponseEntity<ReserveItemsResponse> reserveCartItems(@RequestBody @Valid ReserveItemsRequest 
+			reserveItemsRequest) {
 		ReserveItemsResponse reserveItemsResponse = checkoutService.reserveCartItems(reserveItemsRequest);
 		if(reserveItemsResponse.getReservationStatus() == ReservationStatus.Failed) {
 			return new ResponseEntity<ReserveItemsResponse>(reserveItemsResponse, HttpStatus.BAD_REQUEST);

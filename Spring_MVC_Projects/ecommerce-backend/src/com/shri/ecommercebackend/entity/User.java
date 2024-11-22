@@ -22,6 +22,10 @@ public class User {
 	@Column(name = "email_id")
 	private String emailId;
 	
+	public User() {
+		
+	}
+
 	public User(String userName, String emailId) {
 		this.userName = userName;
 		this.emailId = emailId;

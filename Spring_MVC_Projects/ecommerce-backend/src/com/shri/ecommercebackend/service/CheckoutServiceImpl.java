@@ -7,9 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,33 +103,10 @@ public class CheckoutServiceImpl implements CheckoutService {
 		
 		Map<Integer, InvalidItemReason> invalidItemsMap = new TreeMap<Integer, InvalidItemReason>();
 		
-		
-		
 		for(Integer productIdNotFoundInDB : productIdsNotFoundInDB) {
 			invalidItemsMap.put(productIdNotFoundInDB, InvalidItemReason.Item_Not_Found_In_DB);
 		}
 		
-		cartItems.stream()
-				.filter(cartItem -> !invalidItemsMap.containsKey(cartItem.getProductId()))
-				.forEach(cartItem -> {
-					boolean invalidPrice = false, invalidQuantity = false;
-					if(cartItem.getQuantity() <= 0) {
-						invalidPrice = true;
-					}
-					if(cartItem.getPricePerUnit().compareTo(BigDecimal.ZERO) <= 0) {
-						invalidQuantity = true;
-					}
-					
-					if(invalidQuantity && invalidPrice) {
-						invalidItemsMap.put(cartItem.getProductId(), InvalidItemReason.Invalid_Quantity_And_Price);
-					}
-					else if(invalidQuantity) {
-						invalidItemsMap.put(cartItem.getProductId(), InvalidItemReason.Invalid_Quantity);
-					}
-					else if(invalidPrice) {
-						invalidItemsMap.put(cartItem.getProductId(), InvalidItemReason.Invalid_Price);
-					}
-				});
 		return invalidItemsMap;
 	}
 
@@ -181,16 +156,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 	    for(CartItem cartItem : cartItems) {
 	    	productId = cartItem.getProductId();
 	    	if(invalidItemsMap.containsKey(productId)) {
-	    		if(invalidItemsMap.get(productId) == InvalidItemReason.Invalid_Quantity_And_Price) {
-	    			invalidItemsDTOs.add(new InvalidItemDTO(productId, "Price and Quantity must be greater than 0."));
-	    		}
-	    		else if(invalidItemsMap.get(productId) == InvalidItemReason.Invalid_Quantity) {
-	    			invalidItemsDTOs.add(new InvalidItemDTO(productId, "Quantity must be greater than 0."));
-	    		}
-	    		else if(invalidItemsMap.get(productId) == InvalidItemReason.Invalid_Price) {
-	    			invalidItemsDTOs.add(new InvalidItemDTO(productId, "Price must be greater than 0."));
-	    		}
-	    		else if(invalidItemsMap.get(productId) == InvalidItemReason.Item_Not_Found_In_DB) {
+	    		if(invalidItemsMap.get(productId) == InvalidItemReason.Item_Not_Found_In_DB) {
 	    			invalidItemsDTOs.add(new InvalidItemDTO(productId, "Not found."));
 	    		}
 	    	}
@@ -227,7 +193,4 @@ public class CheckoutServiceImpl implements CheckoutService {
 
 enum InvalidItemReason {
 	Item_Not_Found_In_DB,
-	Invalid_Quantity,
-	Invalid_Price,
-	Invalid_Quantity_And_Price
 }

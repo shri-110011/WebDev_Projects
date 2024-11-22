@@ -8,29 +8,29 @@ import javax.validation.constraints.Positive;
 public class CartItem {
 	
 	@NotNull(message = "Product ID must not be null")
-	private int productId;
+	private Integer productId;
 	
 	@NotNull(message = "Quantity must not be null")
     @Positive(message = "Quantity must be positive")
-	private int quantity;
+	private Integer quantity;
 	
 	@NotNull(message = "Price per unit must not be null")
     @Positive(message = "Price must be positive")
 	private BigDecimal pricePerUnit;
 	
-	public int getProductId() {
+	public Integer getProductId() {
 		return productId;
 	}
 	
-	public void setProductId(int productId) {
+	public void setProductId(Integer productId) {
 		this.productId = productId;
 	}
 	
-	public int getQuantity() {
+	public Integer getQuantity() {
 		return quantity;
 	}
 	
-	public void setQuantity(int quantity) {
+	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
 	}
 	
