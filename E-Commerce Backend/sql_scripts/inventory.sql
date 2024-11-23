@@ -19,3 +19,5 @@ create table inventory (
 select * from inventory;
 
 desc inventory;
+
+insert into inventory(product_id, change_type, quantity, status) values (1000005, 'RESERVATION', 1, 'ACTIVE');

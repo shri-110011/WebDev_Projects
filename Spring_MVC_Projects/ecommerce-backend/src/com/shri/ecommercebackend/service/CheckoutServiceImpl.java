@@ -14,13 +14,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.shri.ecommercebackend.dao.CheckoutDAO;
+import com.shri.ecommercebackend.dao.InventoryDAO;
 import com.shri.ecommercebackend.dao.ProductDAO;
+import com.shri.ecommercebackend.dao.ReservationDAO;
 import com.shri.ecommercebackend.dto.InvalidItemDTO;
 import com.shri.ecommercebackend.dto.PriceMismatchItemDTO;
 import com.shri.ecommercebackend.dto.ProductInventoryDTO;
 import com.shri.ecommercebackend.dto.ReservedItemDTO;
 import com.shri.ecommercebackend.dto.UnavailableItemDTO;
+import com.shri.ecommercebackend.entity.ChangeType;
+import com.shri.ecommercebackend.entity.Inventory;
+import com.shri.ecommercebackend.entity.InventoryStatus;
+import com.shri.ecommercebackend.entity.Reservation;
+import com.shri.ecommercebackend.entity.ReservationEntityStatus;
 import com.shri.ecommercebackend.response.ReservationStatus;
 import com.shri.ecommercebackend.response.ReserveItemsResponse;
 import com.shri.ecommercebackend.validation.CartItem;
@@ -30,12 +36,15 @@ import redis.clients.jedis.Jedis;
 
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
-
-	@Autowired
-	private CheckoutDAO checkoutDAO;
 	
 	@Autowired
 	private ProductDAO productDAO;
+	
+	@Autowired
+	private InventoryDAO inventoryDAO;
+	
+	@Autowired
+	private ReservationDAO reservationDAO;
 
 	@Autowired
 	private Jedis jedis;
@@ -79,7 +88,14 @@ public class CheckoutServiceImpl implements CheckoutService {
 		
 		List<String> luaScriptResults = executeLuaScriptToReserveItems(cartItems, invalidItemsMap);
 		
-		int reservationId =  checkoutDAO.reserveCartItems(reserveItemsRequest);
+		List<Integer> inventoryIds = inventoryDAO.insertItems(getInventories(luaScriptResults, 
+												cartItems, invalidItemsMap));
+		System.out.println("inventoryIds: " + inventoryIds);
+		
+		Reservation reservation = getReservation(reserveItemsRequest.getUserId());
+		
+		int reservationId =  reservationDAO.getReservationId(reservation);
+		System.out.println("reservationId: " + reservationId);
 		
 		return prepareReserveItemsResponse(luaScriptResults, cartItems, 
 				invalidItemsMap, reservationId);
@@ -144,6 +160,36 @@ public class CheckoutServiceImpl implements CheckoutService {
 		}
 	}
 	
+	private List<Inventory> getInventories(List<String> luaScriptResults, List<CartItem> cartItems, 
+			Map<Integer, InvalidItemReason> invalidItemsMap) {
+		List<Inventory> inventories = new ArrayList<>();
+		
+		int i = 0;
+		for(CartItem cartItem : cartItems) {
+			if(!invalidItemsMap.containsKey(cartItem.getProductId())) {
+				String statusCode = luaScriptResults.get(i);
+				if(statusCode.equals("0")) i += 2;
+				else if(statusCode.equals("1")) i+= 2;
+				else {
+					Inventory inventory = new Inventory();
+					inventory.setProductId(cartItem.getProductId());
+					inventory.setQuantity(cartItem.getQuantity());
+					inventory.setChangeType(ChangeType.RESERVATION);
+					inventory.setStatus(InventoryStatus.ACTIVE);
+					inventories.add(inventory);
+					i += 1;
+				};
+			}
+		}
+		
+		return inventories;
+	}
+	
+	private Reservation getReservation(int userId) {
+		Reservation reservation = new Reservation(userId, ReservationEntityStatus.ACTIVE);
+		return reservation;
+	}
+	
 	private ReserveItemsResponse prepareReserveItemsResponse(List<String> luaScriptResults, 
 			List<CartItem> cartItems, 
 			Map<Integer, InvalidItemReason> invalidItemsMap, int reservationId) {
@@ -174,7 +220,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 							cartItem.getPricePerUnit(), new BigDecimal(currentPrice)));
 					i += 2;
 				}
-				else if(statusCode.equals("2")) {
+				else {
 					reservedItemsDTOs.add(new ReservedItemDTO(productId, cartItem.getQuantity()));
 					i += 1;
 				}

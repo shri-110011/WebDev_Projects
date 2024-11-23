@@ -5,21 +5,19 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.shri.ecommercebackend.validation.ReserveItemsRequest;
+import com.shri.ecommercebackend.entity.Reservation;
 
 @Repository
-public class CheckoutDAOImpl implements CheckoutDAO {
+public class ReservationDAOImpl implements ReservationDAO {
 	
 	@Autowired
 	private SessionFactory sessionFactory;
-
+	
 	@Override
-	public int reserveCartItems(ReserveItemsRequest reserveItemsRequest) {
-		System.out.println(reserveItemsRequest);
-		
+	public int getReservationId(Reservation reservation) {
 		Session currentSession = sessionFactory.getCurrentSession();
-		
-		return 987;
+		currentSession.save(reservation);
+		return reservation.getReservationId();
 	}
 	
 }

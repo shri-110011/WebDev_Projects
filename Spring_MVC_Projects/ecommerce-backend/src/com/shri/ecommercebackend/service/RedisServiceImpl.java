@@ -64,6 +64,8 @@ public class RedisServiceImpl implements RedisService {
 
 	@Override
 	public List<Integer> getProductIdsOfItemsNotPresentInCache(List<Integer> productIds) {
+		if(productIds.size() == 0) return List.of();
+		
 		List<Integer> productIdsOfItemsNotPresentInCache = new ArrayList<>();
 		for (Integer productId : productIds) {
 			if (!jedis.hexists("productsInventory:" + productId, "price")) {
