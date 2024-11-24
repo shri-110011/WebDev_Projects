@@ -13,4 +13,6 @@ create table inventory_orders(
 
 select * from inventory_orders;
 
+insert into inventory_orders(inventory_id, order_id, reservation_id) values (1000024, null, 1000005);
+
 desc inventory_orders;

@@ -1,10 +1,15 @@
 package com.shri.ecommercebackend.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -21,6 +26,9 @@ public class Reservation {
 	
 	@Column(name = "status")
 	private String status;
+	
+	@OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
+	private List<InventoryOrder> inventoryOrders;
 
 	public Reservation() {
 	
@@ -53,6 +61,25 @@ public class Reservation {
 
 	public void setStatus(ReservationEntityStatus status) {
 		this.status = status.name();
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	public List<InventoryOrder> getInventoryOrders() {
+		return inventoryOrders;
+	}
+
+	public void setInventoryOrders(List<InventoryOrder> inventoryOrders) {
+		this.inventoryOrders = inventoryOrders;
+	}
+	
+	public void addInventoryOrder(InventoryOrder inventoryOrder) {
+		if(inventoryOrders == null) {
+			inventoryOrders = new ArrayList<>();
+		}
+		inventoryOrders.add(inventoryOrder);
 	}
 
 	@Override

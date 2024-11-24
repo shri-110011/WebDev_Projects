@@ -92,9 +92,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 												cartItems, invalidItemsMap));
 		System.out.println("inventoryIds: " + inventoryIds);
 		
-		Reservation reservation = getReservation(reserveItemsRequest.getUserId());
-		
-		int reservationId =  reservationDAO.getReservationId(reservation);
+		int reservationId =  reservationDAO.getReservationId(reserveItemsRequest.getUserId(), inventoryIds);
 		System.out.println("reservationId: " + reservationId);
 		
 		return prepareReserveItemsResponse(luaScriptResults, cartItems, 
@@ -184,12 +182,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 		
 		return inventories;
 	}
-	
-	private Reservation getReservation(int userId) {
-		Reservation reservation = new Reservation(userId, ReservationEntityStatus.ACTIVE);
-		return reservation;
-	}
-	
+		
 	private ReserveItemsResponse prepareReserveItemsResponse(List<String> luaScriptResults, 
 			List<CartItem> cartItems, 
 			Map<Integer, InvalidItemReason> invalidItemsMap, int reservationId) {

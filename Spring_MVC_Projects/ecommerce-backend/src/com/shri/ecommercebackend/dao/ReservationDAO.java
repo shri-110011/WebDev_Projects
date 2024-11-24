@@ -1,9 +1,9 @@
 package com.shri.ecommercebackend.dao;
 
-import com.shri.ecommercebackend.entity.Reservation;
+import java.util.List;
 
 public interface ReservationDAO {
 
-	public int getReservationId(Reservation reservation);
+	public int getReservationId(int userId, List<Integer> inventoryIds);
 	
 }
