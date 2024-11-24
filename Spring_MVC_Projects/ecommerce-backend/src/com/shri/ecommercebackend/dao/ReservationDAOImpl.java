@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.shri.ecommercebackend.entity.Inventory;
 import com.shri.ecommercebackend.entity.InventoryOrder;
 import com.shri.ecommercebackend.entity.Reservation;
 import com.shri.ecommercebackend.entity.ReservationEntityStatus;
@@ -18,7 +19,7 @@ public class ReservationDAOImpl implements ReservationDAO {
 	private SessionFactory sessionFactory;
 	
 	@Override
-	public int getReservationId(int userId, List<Integer> inventoryIds) {
+	public int getReservationId(int userId, List<Inventory> inventories) {
 		Reservation reservation = new Reservation(userId, ReservationEntityStatus.ACTIVE);
 		
 		Session currentSession = sessionFactory.getCurrentSession();
@@ -27,9 +28,9 @@ public class ReservationDAOImpl implements ReservationDAO {
 		System.out.println(reservation);
 		int reservationId = reservation.getReservationId();
 		
-		for (int inventoryId : inventoryIds) {
+		for (Inventory inventory : inventories) {
 	        InventoryOrder inventoryOrder = new InventoryOrder();
-	        inventoryOrder.setInventoryId(inventoryId);
+	        inventoryOrder.setInventory(inventory);
 	        inventoryOrder.setReservation(reservation);
 	        
 	        System.out.println(inventoryOrder);

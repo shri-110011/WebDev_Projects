@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -12,8 +14,12 @@ import javax.persistence.Table;
 public class InventoryOrder {
 
 	@Id
-	@Column(name = "inventory_id")
 	private int inventoryId;
+	
+	@OneToOne
+	@MapsId
+	@JoinColumn(name = "inventory_id")
+	private Inventory inventory;
 	
 	@Column(name = "order_id")
 	private Integer orderId;
@@ -34,6 +40,14 @@ public class InventoryOrder {
 		this.inventoryId = inventoryId;
 	}
 
+	public Inventory getInventory() {
+		return inventory;
+	}
+
+	public void setInventory(Inventory inventory) {
+		this.inventory = inventory;
+	}
+
 	public Integer getOrderId() {
 		return orderId;
 	}
@@ -49,11 +63,10 @@ public class InventoryOrder {
 	public void setReservation(Reservation reservation) {
 		this.reservation = reservation;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "InventoryOrder [inventoryId=" + inventoryId + ", orderId=" + orderId + ", reservation=" + reservation
-				+ "]";
+		return "InventoryOrder [inventory=" + inventory + ", orderId=" + orderId + ", reservation=" + reservation + "]";
 	}
 	
 }

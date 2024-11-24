@@ -88,11 +88,12 @@ public class CheckoutServiceImpl implements CheckoutService {
 		
 		List<String> luaScriptResults = executeLuaScriptToReserveItems(cartItems, invalidItemsMap);
 		
-		List<Integer> inventoryIds = inventoryDAO.insertItems(getInventories(luaScriptResults, 
-												cartItems, invalidItemsMap));
+		List<Inventory> inventories = getInventories(luaScriptResults, cartItems, invalidItemsMap);
+		
+		List<Integer> inventoryIds = inventoryDAO.insertItems(inventories);
 		System.out.println("inventoryIds: " + inventoryIds);
 		
-		int reservationId =  reservationDAO.getReservationId(reserveItemsRequest.getUserId(), inventoryIds);
+		int reservationId =  reservationDAO.getReservationId(reserveItemsRequest.getUserId(), inventories);
 		System.out.println("reservationId: " + reservationId);
 		
 		return prepareReserveItemsResponse(luaScriptResults, cartItems, 
