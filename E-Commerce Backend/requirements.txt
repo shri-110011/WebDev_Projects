@@ -49,4 +49,3 @@ Method: Delete
 API Endpoint:
 /baseURL/api/v1/orders/{orderId}/status
 Method: GET
-

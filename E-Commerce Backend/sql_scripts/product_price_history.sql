@@ -1,4 +1,4 @@
-use ecommerce_backend;
+use ecommerce_db;
 
 drop table if exists product_price_history;
 
@@ -7,8 +7,7 @@ create table product_price_history (
 	product_id mediumint not null,
     old_price decimal(8,2),
     new_price decimal(8,2) not null,
-    old_version smallint,
-    new_version smallint not null,
+    current_price_version smallint not null,
     price_change_datetime timestamp default current_timestamp not null,
     foreign key(product_id) references products(product_id)
 )auto_increment = 1000001;

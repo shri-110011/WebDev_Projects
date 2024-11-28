@@ -648,3 +648,178 @@ class ProductDTOJsonSerializer extends JsonSerializer<ProductDTO> {
 
 And annotate ProductDTO by @JsonSerialize(using = ProductDTOJsonSerializer.class)
 
+How to make the foreign key of an entity the primary key of that entity as well?
+or
+How to make an entity to share the same primary key as another entity?
+
+1. Use @MapsId on the parent entity reference present in the child entity class.
+2. And create a field in child entity class having same type as the primary key of parent entity 
+and annotate it with @Id.
+
+Example:
+
+@Entity
+@Table(name = "inventory_orders")
+public class InventoryOrder {
+
+	@Id
+	private int id;
+	
+	@OneToOne(cascade = CascadeType.ALL)
+	@MapsId
+	@JoinColumn(name = "inventory_id")
+	private Inventory inventory;
+
+	...
+}
+
+@Entity
+@Table(name = "inventory")
+public class Inventory {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "inventory_id")
+	private int inverntoryId;
+
+	...
+}
+
+How to create a composite key for an entity class?
+1. Create a class representing that composite key and annotate it with @Embeddable.
+2. Make the composite key class implement java.io.Serializable interface.
+3. Now create a reference for that composite key in the entity class where you want that composite
+key. And annotate that reference with @EmbeddedId.
+
+Example:
+
+@Entity
+@Table(name = "order_items")
+public class OrderItem {
+	
+	@EmbeddedId
+	private OrderItemKey orderItemKey;
+	
+	@Column(name = "quantity")
+	private int quantity;
+	
+	@Column(name = "price_at_purchase")
+	private BigDecimal priceAtPurchase;
+	
+	public OrderItem() {
+	
+	}
+		
+	public OrderItem(int orderId, int productId, int quantity, BigDecimal priceAtPurchase) {
+		this.orderItemKey = new OrderItemKey(orderId, productId);
+		this.quantity = quantity;
+		this.priceAtPurchase = priceAtPurchase;
+	}
+
+	...
+}
+
+@Embeddable
+public class OrderItemKey implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Column(name = "order_id")
+	private int orderId;
+	
+	@Column(name = "product_id")
+	private int productId;
+
+	public OrderItemKey() {
+	
+	}
+
+	public OrderItemKey(int orderId, int productId) {
+		this.orderId = orderId;
+		this.productId = productId;
+	}
+
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public int getProductId() {
+		return productId;
+	}
+
+	public void setProductId(int productId) {
+		this.productId = productId;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(orderId, productId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OrderItemKey other = (OrderItemKey) obj;
+		return orderId == other.orderId && productId == other.productId;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderItemKey [orderId=" + orderId + ", productId=" + productId + "]";
+	}
+
+}
+
+How to map the timestamp value that we get from database in the entity class?
+One way is to use the LocalDateTime type of reference in the entity class and map it to the
+timestamp column using @Column.
+
+Example:
+
+@Entity
+@Table(name = "orders")
+public class Order {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "order_id")
+	private int orderId;
+
+	@Column(name = "order_creation_datetime", insertable = false, updatable = false)
+	private LocalDateTime orderCreationDateTime;
+
+	...
+}
+
+How to handle timezone issues when working with datetime values?
+
+1. Store timestamp in UTC format in the database.
+For this add this in the server section of mysql configuration file:
+default_time_zone='+00:00'
+
+For location of mysql configuration file:
+Open Services > Rightclick on MySQL > Properties > 
+Under 'Path to executable' after '--default-file' you will see the path.
+
+2. Add this as hibernate properties in the Spring mvc configuration file.
+<prop key="hibernate.jdbc.time_zone">Asia/Kolkata</prop>
+
+In place of Asia/Kolkata we can put the timezone in which we want the fetched timestamp value 
+from database to be converted to while mapping it to the LocalDateTime reference.
+
+*** Note: By default hibernate assumes that whatever value it gets for the timestamp column in 
+database is in UTC. That is why we require step 1 described above.
+
+

@@ -6,9 +6,9 @@ Tables required:
 
 Table users:
 Fields:
-user_id: mediumint primary key auto increment
-user_name: varchar(45) not null
-email_id: varchar(30)
+user_id: mediumint primary key auto increment,
+user_name: varchar(45) not null,
+email_id: varchar(30) unique not null
 
 Functional Dependencies:
 user_id -> (user_name, email_id)
@@ -16,17 +16,18 @@ email_id -> (user_id, user_name)
 
 Table users is in BCNF.
 
-Table product_price_history:
+Table products:
 Fields:
-product_id: mediumint primary key auto increment
-product_name: varchar(45) not null
-price: decimal(6,2) not null
-category_id: tinyint not null
-available_quantity: int not null
-price_version: smallint not null
+product_id mediumint primary key auto_increment,
+product_name varchar(45) not null,
+price decimal(8, 2) not null,
+category_id tinyint not null,
+available_quantity int not null,
+price_version smallint default 1 not null,
+foreign key(category_id) references categories(category_id)
 
 Functional Dependencies:
-product_id -> (product_name, price, category_id, available_quantity, price_version)
+product_id -> (product_name, product_name, price, category_id, available_quantity, price_version)
 
 Table products is in BCNF.
 
@@ -42,39 +43,32 @@ Table categories is in BCNF.
 
 Table inventory:
 Fields:
-inventory_id: mediumint primary
+inventory_id mediumint primary key auto_increment,
+product_id mediumint not null,
+change_type enum('RESTOCK', 'SALE', 'RETURN', 'ADJUSTMENT', 
+'RESERVATION') not null,
+quantity int not null,
+creation_datetime timestamp default current_timestamp not null,
+reason varchar(45),
+status enum('ACTIVE', 'COMPLETED') not null,
+status_change_datetime timestamp default null,
+adjusted_by varchar(45),
+foreign key(product_id) references products(product_id)
 
-product_id: mediumint not null
+Functional Dependencies:
+inventory_id -> (product_id, change_type, quantity, creation_datetime, reason, status,
+status_change_datetime, adjusted_by)
 
-change_type: ('RESTOCK', 'SALE', 'RETURN', 'ADJUSTMENT', 'RESERVATION') not null
+Table inventory is in BCNF.
 
-quantity: int not null
-
-creation_datetime: timestamp not null
-
-status: ('ACTIVE', 'CANCELLED', 'COMPLETED') not null
-
-status_change_datetime: timestamp
-
-adjusted_by: varchar(45) 
-Description: Authorized person who made the manual adjustment.
-
-reason: varchar(45)
-
-product_id is a foreign key.
-
-Reasons for change_type = 'return' are:
+Reasons for change_type = 'RETURN' are:
 'damaged_product', 'defective_product', 'wrong_item', 
 'change_of_mind', 'size_or_fit_issues', 'expired_product', 'not_as_described'
 
 Reasons for change_type = 'adjustment' are:
 'damaged_goods', 'miscount', 'theft', 'expired_goods', 'supplier_returns'
 
-** Not required
-Reasons for change_type = 'restock' are:
-'returned - wrong_item', 'returned - change_of_mind', 'returned - size_or_fit_issues', 
-'new_stock', 'miscount_correction'
-** Instead making change_type = 'restock' exclusively for new stock.
+Reason for change_of_mind = 'restock': New stock
 
 Reasons description for change_type = 'return' are:
 'damaged_product' - The product is damaged upon arrival, necessitating a return.
@@ -104,27 +98,27 @@ Example: If your records show 100 units of a product, but the count reveals only
 80 units, you would adjust the inventory by -20 units.
 
 'theft' - Adjustments made to account for lost or stolen inventory.
+
 'expired_goods' - Items that are no longer sellable due to expiration dates, 
 especially in industries like food and pharmaceuticals.
+
 'supplier_returns' - When returning unsold or defective goods to suppliers.
-
-Functional Dependencies:
-inventory_id -> (product_id, change_type, quantity, creation_datetime, 
-status_change_datetime, reason, status, adjusted_by)
-
-Table inventory is in BCNF.
 
 Table orders:
 Fields:
-order_id: mediumint primary key
-user_id: mediumint not null
-total_amount: decimal(7,2) not null
-order_status: ('PENDING', 'CONFIRMED', 'PROCESSING', 'PACKAGED', 'SHIPPED', 
-'DELIVERED', 'CANCELLED') not null
-order_creation_datetime: datetime not null
-order_cancellation_datetime: datetime
-payment_status: ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED') not null
-payment_method: ('CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL', 'CASH_ON_DELIVERY') not null
+order_id mediumint primary key auto_increment,
+user_id mediumint not null,
+total_amount decimal(9, 2) not null,
+order_status enum('PENDING', 'CONFIRMED', 'PROCESSING', 'PACKAGED', 'SHIPPED', 
+'DELIVERED', 'CANCELLED', 'RETURNED', 'REFUNDED') not null,
+order_creation_datetime timestamp default current_timestamp not null,
+order_cancellation_datetime timestamp default null
+
+Functional Dependencies:
+order_id -> (user_id, total_amount, order_status, order_creation_datetime, 
+order_cancellation_datetime)
+
+Table orders is in BCNF.
 
 order_status description:
 'PENDING': The user has initiated payment but has not yet completed the payment.
@@ -146,27 +140,15 @@ been handed over to the shipping carrier.
 - Because the payment was failed before confirmation.
 - After the order was placed but before shipment.
 
-payment_status description:
-'PENDING': Payment has been initiated but not completed.
-'COMPLETED': Payment has been successfully processed.
-'FAILED': There was an issue with the payment processing.
-'REFUNDED': The payment was successfully refunded.
-
-Functional Dependencies:
-order_id -> (order_id, user_id, total_amount, order_status, order_creation_datetime, 
-order_cancellation_datetime, payment_status, payment_method)
-
-Table orders is in BCNF.
-
 Table order_items:
 Fields:
-order_id: mediumint
-product_id: mediumint
-quantity: tinyint not null
-price_at_purchase: decimal(6,2) not null
-
-order_id and product_id are are foreign keys and they together form the 
-primary key for order_items.
+order_id mediumint,
+product_id mediumint,
+quantity tinyint not null,
+price_at_purchase decimal(8, 2) not null,
+primary key (order_id, product_id),
+foreign key(order_id) references orders(order_id),
+foreign key(product_id) references products(product_id)
 
 Functional Dependencies:
 (order_id, product_id) -> (quantity, price_at_purchase)
@@ -175,136 +157,48 @@ Table order_items is in BCNF.
 
 Table reservations:
 Fields:
-reservation_id: mediumint primary key
-user_id: mediumint not null
-creation_datetime: timestamp not null
-expiration_datetime: timestamp not null
-status: (Active, Expired) not null
+reservation_id mediumint primary key auto_increment,
+user_id mediumint not null,
+creation_datetime timestamp default current_timestamp not null,
+expiration_datetime timestamp default (current_timestamp + interval 30 minute) not null,
+status enum('ACTIVE', 'EXPIRED', 'USED') not null,
+foreign key(user_id) references users(user_id)
 
 Functional Dependencies:
-reservation_id -> (reservation_id, user_id, creation_datetime, expiration_datetime, 
-status)
+reservation_id -> (user_id, creation_datetime, expiration_datetime, status)
 
 Table reservations is in BCNF.
 
 Table inventory_orders:
 Fields:
-inventory_id: mediumint
-order_id: mediumint
-reservation_id: mediumint not null
-
-inventory_id is the primary key.
-
-inventory_id, order_id, reservation_id all 3 are foreign keys.
+inventory_id mediumint primary key,
+order_id mediumint,
+reservation_id mediumint not null,
+product_id mediumint not null,
+quantity int not null,
+price_at_purchase decimal(8,2),
+foreign key(inventory_id) references inventory(inventory_id),
+foreign key(order_id) references orders(order_id),
+foreign key(reservation_id) references reservations(reservation_id),
+foreign key(product_id) references products(product_id)
 
 Functional Dependencies:
-inventory_id -> (inventory_id, order_id, reservation_id)
+inventory_id -> (order_id, reservation_id, product_id, quantity, price_at_purchase)
 
 Table inventory_orders is in BCNF.
 
 Table product_price_history:
 Fields:
-history_id mediumint primary key
-product_id mediumint
-old_price decimal(6,2)
-new_price decimal(6,2)
-old_version smallint
-new_version smallint
-price_change_datetime timestamp
-
-product_id is a foreign key.
+history_id mediumint primary key auto_increment,
+product_id mediumint not null,
+old_price decimal(8,2),
+new_price decimal(8,2) not null,
+current_price_version smallint not null,
+price_change_datetime timestamp default current_timestamp not null
 
 Functional Dependencies:
-(history_id) -> (history_id, product_id, old_price, new_price, old_version, 
-new_version, price_change_datetime)
-
-(product_id, new_version) -> (history_id, product_id, old_price, new_price, 
-old_version, new_version, price_change_datetime)
-
-(product_id, old_version) -> (history_id, product_id, old_price, new_price, 
-old_version, new_version, price_change_datetime)
+history_id -> (product_id, old_price, new_price, current_price_version, price_change_datetime)
+(product_id, current_price_version) -> (history_id, old_price, new_price, price_change_datetime)
+(product_id, price_change_datetime) -> (history_id, old_price, new_price, current_price_version)
 
 Table product_price_history is in BCNF.
-
-Whenever an order cancellation take place then the order_cancellation_datetime in 
-orders table and status_change_datetime in inventory can have some difference maybe 
-in seconds, is this ok?
-A slight difference in seconds between the order_cancellation_datetime and the 
-status_change_datetime is generally acceptable. The focus should be on maintaining 
-accurate records of each action and ensuring that the business logic handles any 
-inconsistencies gracefully.
-
-What is the flow to accurately track the available_quantity of a product?
-
-available_quantity in products table will track the current available stock of each 
-product in real-time and can be updated in batches for newstock, returns, adjustments, 
-and reservations.
-
-This allows you to query the available stock directly without needing to calculate 
-it on-the-fly.
-
-Real-time Updates for Critical Actions (like Checkout and Cancellation):
-Reservations and Checkouts: When a customer proceeds to checkout, decrement the 
-available_quantity in real-time to reflect the reserved stock. This ensures that 
-customers see the correct stock availability during the purchase process.
-
-For instance, once a product is reserved during checkout, update available_quantity 
-in the products table to prevent over-selling.
-
-For cancelled orders, immediately release the reserved stock by incrementing the 
-available_quantity.
-
-Batch Processing for Less Critical Updates (like Returns, Adjustments):
-For returns and adjustments, use batch processing to periodically update the 
-available_quantity. Since these events are not as time-sensitive as checkout or 
-order cancellation, they can be processed in intervals (e.g., every 5 or 10 minutes).
-
-The batch job will sum the changes (from new stocks, returns, adjustments) and apply 
-them to the available_quantity.
-
-Handling Reservations:
-Reservations (Pending Orders): When an order is placed but not yet completed 
-(e.g., awaiting payment), mark it as a reservation and deduct the reserved quantity 
-from available_quantity in real-time.
-
-If the customer abandons the checkout or fails to pay, the batch job can handle 
-the reservation by changing its status to 'Completed' and restoring the 
-available_quantity.
-
-Handling Adjustments and Returns:
-For adjustments like "damaged goods," "expired goods," etc., batch process these 
-changes.
-
-Ensure that only valid returns (e.g., "change_of_mind" or "size_or_fit_issues") 
-count towards increasing the available_quantity. Damaged or defective product 
-returns should not increase available stock.
-
-Change the status of adjustment and returns to 'Completed' and also update the 
-status_change_datetime.
-
-Suppose a user checkout so a reservation for the puchased product would be made, and
-let us say the user at a later point cancels that order. Now according to our design
-we would immediately update the available_quantity but how to handle the earlier 
-added reservation corresponding to this order?
-
-To handle expired reservations because of order cancellation:
-
-- We first have to get all the inventory_ids using the order_id that was just 
-cancelled.
-
-- Then using the inventory_ids get all the entries in inventory, group the entries by 
-product_id, aggregate the quantity and then update the available_quantity in products
-for each item corresponding to this cancelled order.
-
-Using the inventory_ids we can change the status to 'COMPLETED' due to order 
-cancellation.
-
-By maintaining both 'creation_datetime' and 'status_change_datetime' we can 
-effectively track the latest status change time as well as when the change was 
-created.
-
-How are we going to only batch process the unprocessed returns, reservations and 
-adjustments in inventory table?
-We make use of the status column. Only process those returns, reservations and 
-adjustments in inventory table that have status as 'active'.
-

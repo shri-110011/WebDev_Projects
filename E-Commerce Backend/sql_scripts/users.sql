@@ -1,6 +1,6 @@
-create database if not exists ecommerce_backend;
+create database if not exists ecommerce_db;
 
-use ecommerce_backend;
+use ecommerce_db;
 
 drop table if exists users;
 

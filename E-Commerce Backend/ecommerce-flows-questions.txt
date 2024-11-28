@@ -1,0 +1,81 @@
+Whenever an order cancellation takes place then the order_cancellation_datetime in 
+orders table and status_change_datetime in inventory can have some difference maybe 
+in seconds, is this ok?
+A slight difference in seconds between the order_cancellation_datetime and the 
+status_change_datetime is generally acceptable. The focus should be on maintaining 
+accurate records of each action and ensuring that the business logic handles any 
+inconsistencies gracefully.
+
+What is the flow to accurately track the available_quantity of a product?
+
+available_quantity in products table will track the current available stock of each 
+product in real-time and can be updated in batches for newstock, returns, adjustments, 
+and reservations.
+
+This allows you to query the available stock directly without needing to calculate 
+it on-the-fly.
+
+Real-time Updates for Critical Actions (like Checkout and Cancellation):
+Reservations and Checkouts: When a customer proceeds to checkout, decrement the 
+available_quantity in real-time to reflect the reserved stock. This ensures that 
+customers see the correct stock availability during the purchase process.
+
+For instance, once a product is reserved during checkout, update available_quantity 
+in the products table to prevent over-selling.
+
+For cancelled orders, immediately release the reserved stock by incrementing the 
+available_quantity.
+
+Batch Processing for Less Critical Updates (like Returns, Adjustments):
+For returns and adjustments, use batch processing to periodically update the 
+available_quantity. Since these events are not as time-sensitive as checkout or 
+order cancellation, they can be processed in intervals (e.g., every 5 or 10 minutes).
+
+The batch job will sum the changes (from new stocks, returns, adjustments) and apply them 
+to the available_quantity.
+
+Handling Reservations:
+Reservations (Pending Orders): When an order is placed but not yet completed 
+(e.g., awaiting payment), mark it as a reservation and deduct the reserved quantity 
+from available_quantity in real-time.
+
+If the customer abandons the checkout or fails to pay, the batch job can handle 
+the reservation by changing its status to 'Completed' and restoring the 
+available_quantity.
+
+Handling Adjustments and Returns:
+For adjustments like "damaged goods," "expired goods," etc., batch process these 
+changes.
+
+Ensure that only valid returns (e.g., "change_of_mind" or "size_or_fit_issues") 
+count towards increasing the available_quantity. Damaged or defective product 
+returns should not increase available stock.
+
+Change the status of adjustment and returns to 'Completed' and also update the 
+status_change_datetime.
+
+Suppose a user checkout so a reservation for the puchased product would be made, and
+let us say the user at a later point cancels that order. Now according to our design
+we would immediately update the available_quantity but how to handle the earlier 
+added reservation corresponding to this order?
+
+To handle expired reservations because of order cancellation:
+
+- We first have to get all the inventory_ids using the order_id that was just 
+cancelled.
+
+- Then using the inventory_ids get all the entries in inventory, group the entries by 
+product_id, aggregate the quantity and then update the available_quantity in products
+for each item corresponding to this cancelled order.
+
+Using the inventory_ids we can change the status to 'COMPLETED' due to order 
+cancellation.
+
+By maintaining both 'creation_datetime' and 'status_change_datetime' we can 
+effectively track the latest status change time as well as when the change was 
+created.
+
+How are we going to only batch process the unprocessed returns, reservations and 
+adjustments in inventory table?
+We make use of the status column. Only process those returns, reservations and 
+adjustments in inventory table that have status as 'active'.

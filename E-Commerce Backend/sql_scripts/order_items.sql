@@ -1,4 +1,4 @@
-use ecommerce_backend;
+use ecommerce_db;
 
 drop table if exists order_items;
 
