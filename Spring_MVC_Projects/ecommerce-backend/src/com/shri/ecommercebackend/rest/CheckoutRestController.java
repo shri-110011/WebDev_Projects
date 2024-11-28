@@ -22,7 +22,7 @@ public class CheckoutRestController {
 	@Autowired
 	private CheckoutService checkoutService;
 	
-	@PostMapping(path = "/v1/reserve-items", produces="application/json")
+	@PostMapping(path = "/v1/reserve-items")
 	public ResponseEntity<ReserveItemsResponse> reserveCartItems(@RequestBody @Valid ReserveItemsRequest 
 			reserveItemsRequest) {
 		ReserveItemsResponse reserveItemsResponse = checkoutService.reserveCartItems(reserveItemsRequest);

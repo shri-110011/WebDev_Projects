@@ -10,7 +10,7 @@ create table inventory (
     quantity int not null,
     creation_datetime timestamp default current_timestamp not null,
     reason varchar(45),
-    status enum('ACTIVE', 'CANCELLED', 'COMPLETED') not null,
+    status enum('ACTIVE', 'COMPLETED') not null,
     status_change_datetime timestamp default null,
     adjusted_by varchar(45),
     foreign key(product_id) references products(product_id)
@@ -18,6 +18,11 @@ create table inventory (
 
 select * from inventory;
 
-desc inventory;
+-- truncate inventory;
+-- alter table inventory auto_increment = 1000001;
 
-insert into inventory(product_id, change_type, quantity, status) values (1000005, 'RESERVATION', 1, 'ACTIVE');
+-- SET FOREIGN_KEY_CHECKS = 1;
+
+-- desc inventory;
+
+-- insert into inventory(product_id, change_type, quantity, status) values (1000005, 'RESERVATION', 1, 'ACTIVE');

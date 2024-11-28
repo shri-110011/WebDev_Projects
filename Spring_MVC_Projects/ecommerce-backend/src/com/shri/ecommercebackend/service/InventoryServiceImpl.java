@@ -15,8 +15,8 @@ public class InventoryServiceImpl implements InventoryService {
 
 	@Override
 	@Transactional
-	public List<Integer> insertItems(List<Inventory> inventories) {
-		return inventoryDAO.insertItems(inventories);
+	public void insertItems(List<Inventory> inventories) {
+		inventoryDAO.insertItems(inventories);
 	}
 
 }

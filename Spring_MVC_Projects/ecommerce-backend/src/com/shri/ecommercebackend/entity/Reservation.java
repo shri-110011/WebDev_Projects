@@ -1,5 +1,6 @@
 package com.shri.ecommercebackend.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,12 @@ public class Reservation {
 	
 	@Column(name = "user_id")
 	private int userId;
+	
+	@Column(name = "creation_datetime", insertable = false, updatable = false)
+	private LocalDateTime creationDateTime;
+
+	@Column(name = "expiration_datetime", insertable = false, updatable = false)
+	private LocalDateTime expirationDateTime;
 	
 	@Column(name = "status")
 	private String status;
@@ -55,6 +62,22 @@ public class Reservation {
 		this.userId = userId;
 	}
 
+	public LocalDateTime getCreationDateTime() {
+		return creationDateTime;
+	}
+
+	public void setCreationDateTime(LocalDateTime creationDateTime) {
+		this.creationDateTime = creationDateTime;
+	}
+
+	public LocalDateTime getExpirationDateTime() {
+		return expirationDateTime;
+	}
+
+	public void setExpirationDateTime(LocalDateTime expirationDateTime) {
+		this.expirationDateTime = expirationDateTime;
+	}
+
 	public ReservationEntityStatus getStatus() {
 		return ReservationEntityStatus.valueOf(status);
 	}
@@ -84,7 +107,8 @@ public class Reservation {
 
 	@Override
 	public String toString() {
-		return "Reservation [reservationId=" + reservationId + ", userId=" + userId + ", status=" + status + "]";
+		return "Reservation [reservationId=" + reservationId + ", userId=" + userId + ", creationDateTime="
+				+ creationDateTime + ", expirationDateTime=" + expirationDateTime + ", status=" + status + "]";
 	}
 
 }

@@ -19,6 +19,6 @@ select product_id, null, null, price, price_version from products;
 
 select * from product_price_history;
 
-select product_id, null, null, price, price_version from products;
+-- select product_id, null, null, price, price_version from products;
 
-desc product_price_history;
+-- desc product_price_history;

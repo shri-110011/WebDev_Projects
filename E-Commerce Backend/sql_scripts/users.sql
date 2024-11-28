@@ -18,4 +18,4 @@ values
 
 select * from users;
 
-desc users;
+-- desc users;

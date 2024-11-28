@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.shri.ecommercebackend.dao.InvalidItemReason;
 import com.shri.ecommercebackend.dao.InventoryDAO;
 import com.shri.ecommercebackend.dao.ProductDAO;
 import com.shri.ecommercebackend.dao.ReservationDAO;
@@ -25,8 +26,6 @@ import com.shri.ecommercebackend.dto.UnavailableItemDTO;
 import com.shri.ecommercebackend.entity.ChangeType;
 import com.shri.ecommercebackend.entity.Inventory;
 import com.shri.ecommercebackend.entity.InventoryStatus;
-import com.shri.ecommercebackend.entity.Reservation;
-import com.shri.ecommercebackend.entity.ReservationEntityStatus;
 import com.shri.ecommercebackend.response.ReservationStatus;
 import com.shri.ecommercebackend.response.ReserveItemsResponse;
 import com.shri.ecommercebackend.validation.CartItem;
@@ -88,12 +87,13 @@ public class CheckoutServiceImpl implements CheckoutService {
 		
 		List<String> luaScriptResults = executeLuaScriptToReserveItems(cartItems, invalidItemsMap);
 		
-		List<Inventory> inventories = getInventories(luaScriptResults, cartItems, invalidItemsMap);
+		List<CartItem> validatedCartItems = getValidatedCartItems(luaScriptResults, cartItems, invalidItemsMap);
 		
-		List<Integer> inventoryIds = inventoryDAO.insertItems(inventories);
-		System.out.println("inventoryIds: " + inventoryIds);
+		List<Inventory> inventories = getInventories(validatedCartItems);
 		
-		int reservationId =  reservationDAO.getReservationId(reserveItemsRequest.getUserId(), inventories);
+		inventoryDAO.insertItems(inventories);
+		
+		int reservationId =  reservationDAO.getReservationId(reserveItemsRequest.getUserId(), validatedCartItems, inventories);
 		System.out.println("reservationId: " + reservationId);
 		
 		return prepareReserveItemsResponse(luaScriptResults, cartItems, 
@@ -159,26 +159,37 @@ public class CheckoutServiceImpl implements CheckoutService {
 		}
 	}
 	
-	private List<Inventory> getInventories(List<String> luaScriptResults, List<CartItem> cartItems, 
+	private List<CartItem> getValidatedCartItems(List<String> luaScriptResults, List<CartItem> cartItems, 
 			Map<Integer, InvalidItemReason> invalidItemsMap) {
-		List<Inventory> inventories = new ArrayList<>();
 		
+		List<CartItem> validatedCartItems = new ArrayList<>();
 		int i = 0;
+		
 		for(CartItem cartItem : cartItems) {
 			if(!invalidItemsMap.containsKey(cartItem.getProductId())) {
 				String statusCode = luaScriptResults.get(i);
 				if(statusCode.equals("0")) i += 2;
 				else if(statusCode.equals("1")) i+= 2;
 				else {
-					Inventory inventory = new Inventory();
-					inventory.setProductId(cartItem.getProductId());
-					inventory.setQuantity(cartItem.getQuantity());
-					inventory.setChangeType(ChangeType.RESERVATION);
-					inventory.setStatus(InventoryStatus.ACTIVE);
-					inventories.add(inventory);
-					i += 1;
-				};
+					validatedCartItems.add(cartItem);
+					i++;
+				}
 			}
+		}
+		
+		return validatedCartItems;
+	}
+	
+	private List<Inventory> getInventories(List<CartItem> validatedCartItems) {
+		List<Inventory> inventories = new ArrayList<>();
+		
+		for(CartItem cartItem : validatedCartItems) {
+			Inventory inventory = new Inventory();
+			inventory.setProductId(cartItem.getProductId());
+			inventory.setQuantity(cartItem.getQuantity());
+			inventory.setChangeType(ChangeType.RESERVATION);
+			inventory.setStatus(InventoryStatus.ACTIVE);
+			inventories.add(inventory);
 		}
 		
 		return inventories;
@@ -229,8 +240,4 @@ public class CheckoutServiceImpl implements CheckoutService {
 		return new ReserveItemsResponse(reservationId, reservationStatus, reservedItemsDTOs, unavailableItemsDTOs,
 				invalidItemsDTOs, priceMismatchItemsDTOs);
 	}
-}
-
-enum InvalidItemReason {
-	Item_Not_Found_In_DB,
 }

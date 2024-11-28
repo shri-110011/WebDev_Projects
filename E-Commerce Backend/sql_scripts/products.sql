@@ -33,8 +33,4 @@ values
 
 select * from products;
 
-desc products;
-
-select * from products;
-
-desc products;
+-- desc products;

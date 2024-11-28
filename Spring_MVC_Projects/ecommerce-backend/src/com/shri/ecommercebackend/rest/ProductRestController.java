@@ -31,19 +31,16 @@ public class ProductRestController {
 	
 	@GetMapping(path = "/v1/categories/{categoryId}/products")
 	public CategoryProductsDTO getProductsByCategory(@PathVariable byte categoryId) {
-		
 		if(categoryId <= 0) throw new CategoryNotFoundException("Category id: "+ categoryId + " not found!");
 		return productSerivce.getProductsByCategory(categoryId);
 	}
 	
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleException(CategoryNotFoundException exc) {
-		
 		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exc.getMessage(), 
 				System.currentTimeMillis());
 		
 		return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
-		
 	}
 
 }

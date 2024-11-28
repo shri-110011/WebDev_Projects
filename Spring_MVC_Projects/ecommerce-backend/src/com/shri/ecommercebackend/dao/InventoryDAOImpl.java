@@ -1,6 +1,5 @@
 package com.shri.ecommercebackend.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -17,15 +16,13 @@ public class InventoryDAOImpl implements InventoryDAO {
 	private SessionFactory sessionFactory;
 
 	@Override
-	public List<Integer> insertItems(List<Inventory> inventories) {
+	public void insertItems(List<Inventory> inventories) {
 		Session currentSession = sessionFactory.getCurrentSession();
-		List<Integer> inventoryIds = new ArrayList<>();
 		
 		int inventorySize = inventories.size();
 		for(int i = 0; i < inventorySize; i++) {
 			Inventory inventory = inventories.get(i);
 			currentSession.save(inventory);
-			inventoryIds.add(inventory.getInverntoryId());
 			System.out.println(inventory);
 			
 			if (i % 20 == 0) {
@@ -33,8 +30,6 @@ public class InventoryDAOImpl implements InventoryDAO {
 				currentSession.clear(); // Clear the session to avoid memory issues
 		    }
 		}
-				
-		return inventoryIds;
 	}
 
 }

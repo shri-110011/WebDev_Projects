@@ -13,4 +13,4 @@ insert into categories(category_name) values ('Electronics'), ('Fashion'),
 
 select * from categories;
 
-desc categories;
+-- desc categories;

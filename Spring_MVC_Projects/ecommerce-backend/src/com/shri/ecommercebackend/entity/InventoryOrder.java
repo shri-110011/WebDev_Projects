@@ -1,5 +1,8 @@
 package com.shri.ecommercebackend.entity;
 
+import java.math.BigDecimal;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -14,9 +17,9 @@ import javax.persistence.Table;
 public class InventoryOrder {
 
 	@Id
-	private int inventoryId;
+	private int id;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	@MapsId
 	@JoinColumn(name = "inventory_id")
 	private Inventory inventory;
@@ -27,17 +30,26 @@ public class InventoryOrder {
 	@ManyToOne
 	@JoinColumn(name = "reservation_id")
 	private Reservation reservation;
+	
+	@Column(name = "product_id")
+	private int productId;
+	
+	@Column(name = "quantity")
+	private int quantity;
+	
+	@Column(name = "price_at_purchase")
+	private BigDecimal priceAtPurchase;
 
 	public InventoryOrder() {
 	
 	}
-
-	public int getInventoryId() {
-		return inventoryId;
+	
+	public int getId() {
+		return id;
 	}
 
-	public void setInventoryId(int inventoryId) {
-		this.inventoryId = inventoryId;
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public Inventory getInventory() {
@@ -63,10 +75,36 @@ public class InventoryOrder {
 	public void setReservation(Reservation reservation) {
 		this.reservation = reservation;
 	}
+	
+	public int getProductId() {
+		return productId;
+	}
+
+	public void setProductId(int productId) {
+		this.productId = productId;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+
+	public BigDecimal getPriceAtPurchase() {
+		return priceAtPurchase;
+	}
+
+	public void setPriceAtPurchase(BigDecimal priceAtPurchase) {
+		this.priceAtPurchase = priceAtPurchase;
+	}
 
 	@Override
 	public String toString() {
-		return "InventoryOrder [inventory=" + inventory + ", orderId=" + orderId + ", reservation=" + reservation + "]";
+		return "InventoryOrder [id=" + id + ", inventory=" + inventory + ", orderId=" + orderId
+				+ ", reservation=" + reservation + ", productId=" + productId + ", quantity=" + quantity
+				+ ", priceAtPurchase=" + priceAtPurchase + "]";
 	}
 	
 }

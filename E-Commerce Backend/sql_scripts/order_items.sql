@@ -12,14 +12,16 @@ create table order_items (
     foreign key(product_id) references products(product_id)
 );
 
-insert into order_items(order_id, product_id, quantity, price_at_purchase)
-values
-(1000001, 1000015, 2, 50),
-(1000001, 1000016, 1, 20),
-(1000001, 1000014, 1, 93),
-(1000002, 1000001, 1, 53499),
-(1000002, 1000003, 1, 2999);
+-- insert into order_items(order_id, product_id, -- quantity, price_at_purchase)
+-- values
+-- (1000001, 1000015, 2, 50),
+-- (1000001, 1000016, 1, 20),
+-- (1000001, 1000014, 1, 93),
+-- (1000002, 1000001, 1, 53499),
+-- (1000002, 1000003, 1, 2999);
 
 select * from order_items;
 
-desc order_items;
+-- desc order_items;
+
+-- truncate order_items;
