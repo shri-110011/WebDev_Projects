@@ -1,4 +1,4 @@
-use ecommerce_db;
+-- use ecommerce_db;
 
 drop table if exists reservations;
 

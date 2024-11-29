@@ -510,41 +510,7 @@ Use 200 OK if at least one item was reserved successfully.
 400 Bad Request if none of the items could be reserved due to insufficient stock.
 
 Response Structure:
-{
-  "reservationStatus": "partial",
-  "reservationId": "12345",
-  "message": "Some items could not be reserved due to insufficient stock.",
-  "reservedItems": [
-    {
-      "productId": "1001",
-      "quantity": 2,
-      "status": "reserved"
-    },
-    {
-      "productId": "1002",
-      "quantity": 1,
-      "status": "reserved"
-    }
-  ],
-  "unavailableItems": [
-    {
-      "productId": "1003",
-      "requestedQuantity": 3,
-      "status": "not reserved"
-    },
-    {
-      "productId": "1004",
-      "requestedQuantity": 1,
-      "status": "not reserved"
-    }
-  ],
-  "invalidItems": [
-    {
-      "productId": "1005",
-      "status": "not found"
-    }
-  ]
-}
+See the /baseURL/api/v1/reserve-items api in requirements.txt file.
 
 What if some items are not prsent in Redis and in the database ?
 If a product is missing (not found in Redis or the database), record it as an 
@@ -559,51 +525,13 @@ Yes the user can tamper the request body and set a lower price for a product.
 To avoid this we can use Price Validation Strategy.
 
 What is this Price Validation Strategy and how does it work?
-In the request body during checkout we can add price key. The backend will use the productId to check 
-if the price in request match the latest price in server.
+The backend will use the productId to check if the price in request match the latest price in server.
 
 If the prices don't match we can we can keep track of those items and send them 
 back in the checkout api repsonse under the "priceMismatchItems" key.
 
 Response Structure:
-{
-	"reservationStatus": "partial",
-  	"reservationId": "12345",
-  	"reservedItems": [
-		{
-			"productId": "1001",
-			"quantity": 2
-		},
-		{
-			"productId": "1002",
-			"quantity": 1
-		}
-	],
-	"unavailableItems": [
-		{
-			"productId": "1003",
-			"requestedQuantity": 3,
-			"message": "Only 2 left in stock"
-		},
-		{
-			"productId": "1004",
-			"requestedQuantity": 1,
-			"message": "Out of stock" 
-		}
-  	],
-  	"invalidItems": [
-		{
-			"productId": "1005"
-		}
-   	],
-  	"priceMismatchItems": [
-		{
-			"productId": 1006,
-			"requestedPrice": 150,
-			"currentPrice": 160
-		}
-	]
-}
+See the /baseURL/api/v1/reserve-items api in requirements.txt file.
 
 If a user sees the old price in Redis/products table for a product during checkout, 
 after that product's price has been updated in product_price_history. Can we 
@@ -614,7 +542,7 @@ Yes we can tolearate the gap of few seconds.
 
 Why do we have product_price_history table?
 Because it enables us to keep track of price changes for each product by using means like 
-priceVersion, and priceChangeTime. These will be useful for analytics purposes.  
+current_price_version and price_change_datetime. These will be useful for analytics purposes.  
 
 How to prevent code duplication in DTOs and also be able to customize the serialization process for
 the DTOs?
@@ -813,13 +741,14 @@ For location of mysql configuration file:
 Open Services > Rightclick on MySQL > Properties > 
 Under 'Path to executable' after '--default-file' you will see the path.
 
-2. Add this as hibernate properties in the Spring mvc configuration file.
+2. Add the serverTimezone=UTC in the JDBC url.
+Example:
+<property name="jdbcUrl"
+	value="jdbc:mysql://localhost:3306/ecommerce_db?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=UTC" />
+in the Spring mvc configuration file.
+
+3. Add this as hibernate properties in the Spring mvc configuration file.
 <prop key="hibernate.jdbc.time_zone">Asia/Kolkata</prop>
 
 In place of Asia/Kolkata we can put the timezone in which we want the fetched timestamp value 
 from database to be converted to while mapping it to the LocalDateTime reference.
-
-*** Note: By default hibernate assumes that whatever value it gets for the timestamp column in 
-database is in UTC. That is why we require step 1 described above.
-
-

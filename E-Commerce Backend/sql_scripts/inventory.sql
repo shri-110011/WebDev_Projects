@@ -1,4 +1,4 @@
-use ecommerce_db;
+-- use ecommerce_backend;
 
 drop table if exists inventory;
 
@@ -21,7 +21,7 @@ select * from inventory;
 -- truncate inventory;
 -- alter table inventory auto_increment = 1000001;
 
--- SET FOREIGN_KEY_CHECKS = 1;
+-- SET FOREIGN_KEY_CHECKS = 0;
 
 -- desc inventory;
 

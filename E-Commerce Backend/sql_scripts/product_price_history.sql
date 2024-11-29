@@ -1,4 +1,4 @@
-use ecommerce_db;
+-- use ecommerce_db;
 
 drop table if exists product_price_history;
 
@@ -12,9 +12,8 @@ create table product_price_history (
     foreign key(product_id) references products(product_id)
 )auto_increment = 1000001;
 
-insert into product_price_history(product_id, old_price, old_version,
-new_price, new_version)
-select product_id, null, null, price, price_version from products;
+insert into product_price_history(product_id, old_price, new_price, current_price_version)
+select product_id, null, price, price_version from products;
 
 select * from product_price_history;
 

@@ -35,7 +35,7 @@
 		destroy-method="close">
 		<property name="driverClass" value="com.mysql.cj.jdbc.Driver" />
 		<property name="jdbcUrl"
-			value="jdbc:mysql://localhost:3306/ecommerce_backend?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=UTC" />
+			value="jdbc:mysql://localhost:3306/ecommerce_db?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=Asia/Kolkata" />
 		<property name="user" value="root" />
 		<property name="password" value="siddu" />
 

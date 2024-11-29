@@ -72,6 +72,7 @@ public class OrderDAOImpl implements OrderDAO {
 			Inventory inventory = inventoryOrder.getInventory();
 			inventory.setChangeType(ChangeType.SALE);
 			inventory.setStatus(InventoryStatus.COMPLETED);
+			inventory.setStatusChangeDatetime(LocalDateTime.now());
 			
 			OrderItem orderItem = new OrderItem(orderId, inventoryOrder.getProductId(), 
 					inventoryOrder.getQuantity(), inventoryOrder.getPriceAtPurchase());

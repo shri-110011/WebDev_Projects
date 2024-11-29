@@ -6,46 +6,152 @@ API Endpoint:
 /baseURL/api/v1/categories
 Method: GET
 
+Response body:
+[
+    {
+        "categoryId": 16,
+        "categoryName": "Books and Media"
+    },
+    {
+        "categoryId": 11,
+        "categoryName": "Electronics"
+    },
+    {
+        "categoryId": 12,
+        "categoryName": "Fashion"
+    },
+    {
+        "categoryId": 18,
+        "categoryName": "Groceries"
+    },
+    {
+        "categoryId": 13,
+        "categoryName": "Health and Beauty"
+    },
+    {
+        "categoryId": 14,
+        "categoryName": "Home and Garden"
+    },
+    {
+        "categoryId": 15,
+        "categoryName": "Sports and Outdoors"
+    },
+    {
+        "categoryId": 17,
+        "categoryName": "Toys and Games"
+    }
+]
+
 2. User should be able to get the products by category.
 API Endpoint:
-/baseURL/api/v1/categories/{category}/products
+/baseURL/api/v1/categories/{categoryId}/products
 Method: GET
 
-3. User should be able to place an order.
+Response body:
+{
+    "categoryId": 12,
+    "categoryName": "Fashion",
+    "products": [
+        {
+            "productId": 1000005,
+            "availableQuantity": 50,
+            "price": 799.00,
+            "productName": "Men's T-shirt"
+        },
+        {
+            "productId": 1000006,
+            "availableQuantity": 24,
+            "price": 1299.00,
+            "productName": "Jeans"
+        }
+    ]
+}
+
+3. User should be able to reserve items in cart on checkout.
 API Endpoint:
-/baseURL/api/v1/orders
+/baseURL/api/v1/reserve-items
 Method: POST
 
-    3.1 On checkout and before the order is confirmed we need to reserve the items in 
-    cart.
-    API Endpoint:
-    /baseURL/api/v1/reserve-items
-    Method: POST
-    Request body:
-    {
-        userId: $userId,
-        cartItems: [
-            {
-                productId: $productId,
-                quantity: $quantity,
-                pricePerUnit: $pricePerUnit,
-                priceVersion: $priceVersion
-            },
-            ...
-        ]
-    }
+Request body:
+{
+    "userId": 1000001,
+    "cartItems": [
+        {
+            "productId": 1000016,
+            "quantity": 5,
+            "pricePerUnit": 20.00
+        },
+        {
+            "productId": 1000003,
+            "quantity": 1,
+            "pricePerUnit": 2999.00
+        },
+        {
+            "productId": 1000014,
+            "quantity": 2,
+            "pricePerUnit": 93.00
+        }
+    ]
+}
 
-    Response body:
-    {
-        reservationId: $reservationId
-    }
+Response body:
+{
+    "reservationId": 1000001,
+    "reservationStatus": "Complete",
+    "reservedItems": [
+        {
+            "productId": 1000016,
+            "quantity": 5
+        },
+        {
+            "productId": 1000003,
+            "quantity": 1
+        },
+        {
+            "productId": 1000014,
+            "quantity": 2
+        }
+    ],
+    "unavailableItems": [],
+    "invalidItems": [],
+    "priceMismatchItems": []
+}
 
-4. User should be able to cancel an order.
+4. User should be able to place an order.
+API Endpoint:
+/baseURL/api/v1/place-order?reservationId={reservationId}
+Method: POST
+
+Response body:
+{
+    "status": 404,
+    "message": "Reservation id: 1000020 is invalid!",
+    "timeStamp": 1732872536972
+}
+
+or
+
+{
+    "orderId": 1000001,
+    "orderStatus": "CONFIRMED",
+    "totalAmount": 3285.00,
+    "message": "Your order has been placed successfully!"
+}
+
+or
+
+{
+    "status": 404,
+    "message": "Reservation id: 1000001 has already been used!",
+    "timeStamp": 1732872623159
+}
+
+5. User should be able to cancel an order.
 API Endpoint:
 /baseURL/api/v1/orders/{orderId}
 Method: Delete
 
-5. User should be able to track the order status.
+6. User should be able to track the order status.
 API Endpoint:
 /baseURL/api/v1/orders/{orderId}/status
 Method: GET

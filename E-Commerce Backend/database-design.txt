@@ -137,7 +137,6 @@ been handed over to the shipping carrier.
 'DELIVERED': The order has been successfully delivered to the customer.
 
 'CANCELLED': The order can get cancelled:
-- Because the payment was failed before confirmation.
 - After the order was placed but before shipment.
 
 Table order_items:
