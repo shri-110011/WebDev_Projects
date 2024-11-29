@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "orders")
 public class Order {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "order_id")
@@ -26,27 +26,27 @@ public class Order {
 
 	@Column(name = "user_id")
 	private int userId;
-	
+
 	@Column(name = "total_amount")
 	private BigDecimal totalAmount;
-	
+
 	@Column(name = "order_status")
 	private String orderStatus;
 
 	@Column(name = "order_creation_datetime", insertable = false, updatable = false)
 	private LocalDateTime orderCreationDateTime;
 
-	@Column(name = "order_cancellation_datetime",  insertable = false, updatable = false)
+	@Column(name = "order_cancellation_datetime", insertable = false, updatable = false)
 	private LocalDateTime orderCancellationDateTime;
-	
+
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "order_id")
 	private List<OrderItem> orderItems;
-	
+
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "order_id")
-	private List<InventoryOrder> inventoryOrders;
-	
+	private List<InventoryEventOrderReservationLink> inventoryEventOrderReservationLinks;
+
 	public Order() {
 
 	}
@@ -98,7 +98,7 @@ public class Order {
 	public void setOrderCancellationDateTime(LocalDateTime orderCancellationDateTime) {
 		this.orderCancellationDateTime = orderCancellationDateTime;
 	}
-	
+
 	public List<OrderItem> getOrderItems() {
 		return orderItems;
 	}
@@ -110,30 +110,31 @@ public class Order {
 	public void setOrderStatus(String orderStatus) {
 		this.orderStatus = orderStatus;
 	}
-	
-	public List<InventoryOrder> getInventoryOrders() {
-		return inventoryOrders;
+
+	public List<InventoryEventOrderReservationLink> getInventoryEventOrderReservationLinks() {
+		return inventoryEventOrderReservationLinks;
 	}
 
-	public void setInventoryOrders(List<InventoryOrder> inventoryOrders) {
-		this.inventoryOrders = inventoryOrders;
+	public void setInventoryEventOrderReservationLinks(
+			List<InventoryEventOrderReservationLink> inventoryEventOrderReservationLinks) {
+		this.inventoryEventOrderReservationLinks = inventoryEventOrderReservationLinks;
 	}
 
 	public void addOrderItem(OrderItem orderItem) {
-		if(orderItems == null) {
+		if (orderItems == null) {
 			orderItems = new ArrayList<>();
 		}
 		orderItems.add(orderItem);
 	}
 
-	public void addInventoryOrder(InventoryOrder inventoryOrder) {
-		if(inventoryOrders == null) {
-			inventoryOrders = new ArrayList<>();
+	public void addInventoryEventOrderReservationLink(
+			InventoryEventOrderReservationLink inventoryEventOrderReservationLink) {
+		if (inventoryEventOrderReservationLinks == null) {
+			inventoryEventOrderReservationLinks = new ArrayList<>();
 		}
-		inventoryOrders.add(inventoryOrder);
+		inventoryEventOrderReservationLinks.add(inventoryEventOrderReservationLink);
 	}
 
-	
 	@Override
 	public String toString() {
 		return "Order [orderId=" + orderId + ", userId=" + userId + ", totalAmount=" + totalAmount + ", orderStatus="

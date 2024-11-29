@@ -10,13 +10,13 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "inventory")
-public class Inventory {
+@Table(name = "inventory_events_log")
+public class InventoryEventLog {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "inventory_id")
-	private int inverntoryId;
+	@Column(name = "event_id")
+	private int eventId;
 	
 	@Column(name = "product_id")
 	private int productId;
@@ -39,12 +39,12 @@ public class Inventory {
 	@Column(name = "adjusted_by")
 	private String adjustedBy;
 	
-	public Inventory() {
+	public InventoryEventLog() {
 		
 	}
 
-	public Inventory(int productId, ChangeType changeType, int quantity, String reason, 
-			InventoryStatus status, LocalDateTime statusChangeDatetime, String adjustedBy) {
+	public InventoryEventLog(int productId, ChangeType changeType, int quantity, String reason, 
+			InventoryEventStatus status, LocalDateTime statusChangeDatetime, String adjustedBy) {
 		this.productId = productId;
 		this.changeType = changeType.name();
 		this.quantity = quantity;
@@ -54,12 +54,12 @@ public class Inventory {
 		this.adjustedBy = adjustedBy;
 	}
 	
-	public int getInverntoryId() {
-		return inverntoryId;
+	public int getEventId() {
+		return eventId;
 	}
 
-	public void setInverntoryId(int inverntoryId) {
-		this.inverntoryId = inverntoryId;
+	public void setEventId(int eventId) {
+		this.eventId = eventId;
 	}
 
 	public int getProductId() {
@@ -94,11 +94,11 @@ public class Inventory {
 		this.reason = reason;
 	}
 
-	public InventoryStatus getStatus() {
-		return InventoryStatus.valueOf(status);
+	public InventoryEventStatus getStatus() {
+		return InventoryEventStatus.valueOf(status);
 	}
 
-	public void setStatus(InventoryStatus status) {
+	public void setStatus(InventoryEventStatus status) {
 		this.status = status.name();
 	}
 
@@ -120,7 +120,7 @@ public class Inventory {
 
 	@Override
 	public String toString() {
-		return "Inventory [inverntoryId=" + inverntoryId + ", productId=" + productId + ", changeType=" + changeType
+		return "InventoryEventLog [eventId=" + eventId + ", productId=" + productId + ", changeType=" + changeType
 				+ ", quantity=" + quantity + ", reason=" + reason + ", status=" + status + ", statusChangeDatetime="
 				+ statusChangeDatetime + ", adjustedBy=" + adjustedBy + "]";
 	}

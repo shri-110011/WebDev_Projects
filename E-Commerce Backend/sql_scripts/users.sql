@@ -1,4 +1,4 @@
--- drop database if exists ecommerce_backend;
+-- drop database if exists ecommerce_db;
 
 create database if not exists ecommerce_db;
 

@@ -13,16 +13,16 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "inventory_orders")
-public class InventoryOrder {
+@Table(name = "inventory_events_orders_reservations_link")
+public class InventoryEventOrderReservationLink {
 
 	@Id
 	private int id;
 	
 	@OneToOne(cascade = CascadeType.ALL)
 	@MapsId
-	@JoinColumn(name = "inventory_id")
-	private Inventory inventory;
+	@JoinColumn(name = "inventory_event_id")
+	private InventoryEventLog inventoryEventLog;
 	
 	@Column(name = "order_id")
 	private Integer orderId;
@@ -40,7 +40,7 @@ public class InventoryOrder {
 	@Column(name = "price_at_purchase")
 	private BigDecimal priceAtPurchase;
 
-	public InventoryOrder() {
+	public InventoryEventOrderReservationLink() {
 	
 	}
 	
@@ -52,12 +52,12 @@ public class InventoryOrder {
 		this.id = id;
 	}
 
-	public Inventory getInventory() {
-		return inventory;
+	public InventoryEventLog getInventoryEventLog() {
+		return inventoryEventLog;
 	}
 
-	public void setInventory(Inventory inventory) {
-		this.inventory = inventory;
+	public void setInventoryEventLog(InventoryEventLog inventoryEventLog) {
+		this.inventoryEventLog = inventoryEventLog;
 	}
 
 	public Integer getOrderId() {
@@ -102,7 +102,7 @@ public class InventoryOrder {
 
 	@Override
 	public String toString() {
-		return "InventoryOrder [id=" + id + ", inventory=" + inventory + ", orderId=" + orderId
+		return "InventoryEventOrderReservationLink [id=" + id + ", inventoryEventLog=" + inventoryEventLog + ", orderId=" + orderId
 				+ ", reservation=" + reservation + ", productId=" + productId + ", quantity=" + quantity
 				+ ", priceAtPurchase=" + priceAtPurchase + "]";
 	}

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.shri.ecommercebackend.dao.InvalidItemReason;
-import com.shri.ecommercebackend.dao.InventoryDAO;
+import com.shri.ecommercebackend.dao.InventoryEventLogDAO;
 import com.shri.ecommercebackend.dao.ProductDAO;
 import com.shri.ecommercebackend.dao.ReservationDAO;
 import com.shri.ecommercebackend.dto.InvalidItemDTO;
@@ -24,8 +24,8 @@ import com.shri.ecommercebackend.dto.ProductInventoryDTO;
 import com.shri.ecommercebackend.dto.ReservedItemDTO;
 import com.shri.ecommercebackend.dto.UnavailableItemDTO;
 import com.shri.ecommercebackend.entity.ChangeType;
-import com.shri.ecommercebackend.entity.Inventory;
-import com.shri.ecommercebackend.entity.InventoryStatus;
+import com.shri.ecommercebackend.entity.InventoryEventLog;
+import com.shri.ecommercebackend.entity.InventoryEventStatus;
 import com.shri.ecommercebackend.response.ReservationStatus;
 import com.shri.ecommercebackend.response.ReserveItemsResponse;
 import com.shri.ecommercebackend.validation.CartItem;
@@ -40,7 +40,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 	private ProductDAO productDAO;
 	
 	@Autowired
-	private InventoryDAO inventoryDAO;
+	private InventoryEventLogDAO inventoryEventLogDAO;
 	
 	@Autowired
 	private ReservationDAO reservationDAO;
@@ -89,9 +89,9 @@ public class CheckoutServiceImpl implements CheckoutService {
 		
 		List<CartItem> validatedCartItems = getValidatedCartItems(luaScriptResults, cartItems, invalidItemsMap);
 		
-		List<Inventory> inventories = getInventories(validatedCartItems);
+		List<InventoryEventLog> inventories = getInventoryEventLogs(validatedCartItems);
 		
-		inventoryDAO.insertItems(inventories);
+		inventoryEventLogDAO.insertItems(inventories);
 		
 		int reservationId =  reservationDAO.getReservationId(reserveItemsRequest.getUserId(), validatedCartItems, inventories);
 		System.out.println("reservationId: " + reservationId);
@@ -180,19 +180,19 @@ public class CheckoutServiceImpl implements CheckoutService {
 		return validatedCartItems;
 	}
 	
-	private List<Inventory> getInventories(List<CartItem> validatedCartItems) {
-		List<Inventory> inventories = new ArrayList<>();
+	private List<InventoryEventLog> getInventoryEventLogs(List<CartItem> validatedCartItems) {
+		List<InventoryEventLog> inventoryEventLogs = new ArrayList<>();
 		
 		for(CartItem cartItem : validatedCartItems) {
-			Inventory inventory = new Inventory();
-			inventory.setProductId(cartItem.getProductId());
-			inventory.setQuantity(cartItem.getQuantity());
-			inventory.setChangeType(ChangeType.RESERVATION);
-			inventory.setStatus(InventoryStatus.ACTIVE);
-			inventories.add(inventory);
+			InventoryEventLog inventoryEventLog = new InventoryEventLog();
+			inventoryEventLog.setProductId(cartItem.getProductId());
+			inventoryEventLog.setQuantity(cartItem.getQuantity());
+			inventoryEventLog.setChangeType(ChangeType.RESERVATION);
+			inventoryEventLog.setStatus(InventoryEventStatus.ACTIVE);
+			inventoryEventLogs.add(inventoryEventLog);
 		}
 		
-		return inventories;
+		return inventoryEventLogs;
 	}
 		
 	private ReserveItemsResponse prepareReserveItemsResponse(List<String> luaScriptResults, 

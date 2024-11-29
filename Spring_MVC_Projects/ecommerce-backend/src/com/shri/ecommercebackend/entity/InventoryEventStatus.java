@@ -1,5 +1,5 @@
 package com.shri.ecommercebackend.entity;
 
-public enum InventoryStatus {
+public enum InventoryEventStatus {
 	ACTIVE, COMPLETED
 }

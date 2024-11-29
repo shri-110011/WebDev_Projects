@@ -7,8 +7,8 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.shri.ecommercebackend.entity.Inventory;
-import com.shri.ecommercebackend.entity.InventoryOrder;
+import com.shri.ecommercebackend.entity.InventoryEventLog;
+import com.shri.ecommercebackend.entity.InventoryEventOrderReservationLink;
 import com.shri.ecommercebackend.entity.Reservation;
 import com.shri.ecommercebackend.entity.ReservationEntityStatus;
 import com.shri.ecommercebackend.validation.CartItem;
@@ -20,7 +20,8 @@ public class ReservationDAOImpl implements ReservationDAO {
 	private SessionFactory sessionFactory;
 	
 	@Override
-	public int getReservationId(int userId, List<CartItem> validatedCartItems, List<Inventory> inventories) {
+	public int getReservationId(int userId, List<CartItem> validatedCartItems, 
+			List<InventoryEventLog> inventoryEventLogs) {
 		Reservation reservation = new Reservation(userId, ReservationEntityStatus.ACTIVE);
 		
 		Session currentSession = sessionFactory.getCurrentSession();
@@ -31,18 +32,19 @@ public class ReservationDAOImpl implements ReservationDAO {
 		
 		
 		for (CartItem cartItem : validatedCartItems) {
-			Inventory inventory = inventories.get(i);
-	        InventoryOrder inventoryOrder = new InventoryOrder();
-	        inventoryOrder.setInventory(inventory);
-	        inventoryOrder.setReservation(reservation);
-	        inventoryOrder.setProductId(cartItem.getProductId());
-	        inventoryOrder.setQuantity(cartItem.getQuantity());
-	        inventoryOrder.setPriceAtPurchase(cartItem.getPricePerUnit());
+			InventoryEventLog inventoryEventLog = inventoryEventLogs.get(i);
+	        InventoryEventOrderReservationLink inventoryEventOrderReservationLink = 
+	        		new InventoryEventOrderReservationLink();
+	        inventoryEventOrderReservationLink.setInventoryEventLog(inventoryEventLog);
+	        inventoryEventOrderReservationLink.setReservation(reservation);
+	        inventoryEventOrderReservationLink.setProductId(cartItem.getProductId());
+	        inventoryEventOrderReservationLink.setQuantity(cartItem.getQuantity());
+	        inventoryEventOrderReservationLink.setPriceAtPurchase(cartItem.getPricePerUnit());
 	        
-	        System.out.println(inventoryOrder);
+	        System.out.println(inventoryEventOrderReservationLink);
 
 	        // Synchronize the relationship
-	        reservation.addInventoryOrder(inventoryOrder);
+	        reservation.addInventoryEventOrderReservationLink(inventoryEventOrderReservationLink);
 	        
 	        i++;
 	    }

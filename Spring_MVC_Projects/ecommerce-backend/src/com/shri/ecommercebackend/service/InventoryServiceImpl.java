@@ -5,18 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.shri.ecommercebackend.dao.InventoryDAO;
-import com.shri.ecommercebackend.entity.Inventory;
+import com.shri.ecommercebackend.dao.InventoryEventLogDAO;
+import com.shri.ecommercebackend.entity.InventoryEventLog;
 
-public class InventoryServiceImpl implements InventoryService {
-	
+public class InventoryServiceImpl implements InventoryEventLogService {
+
 	@Autowired
-	private InventoryDAO inventoryDAO;
+	private InventoryEventLogDAO inventoryEventLogDAO;
 
 	@Override
 	@Transactional
-	public void insertItems(List<Inventory> inventories) {
-		inventoryDAO.insertItems(inventories);
+	public void insertItems(List<InventoryEventLog> inventoryEventLogs) {
+		inventoryEventLogDAO.insertItems(inventoryEventLogs);
 	}
 
 }

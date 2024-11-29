@@ -41,12 +41,11 @@ category_id ->  category_name
 
 Table categories is in BCNF.
 
-Table inventory:
+Table inventory_events_log:
 Fields:
-inventory_id mediumint primary key auto_increment,
+event_id mediumint primary key auto_increment,
 product_id mediumint not null,
-change_type enum('RESTOCK', 'SALE', 'RETURN', 'ADJUSTMENT', 
-'RESERVATION') not null,
+change_type enum('RESTOCK', 'SALE', 'ADJUSTMENT', 'RESERVATION') not null,
 quantity int not null,
 creation_datetime timestamp default current_timestamp not null,
 reason varchar(45),
@@ -56,10 +55,10 @@ adjusted_by varchar(45),
 foreign key(product_id) references products(product_id)
 
 Functional Dependencies:
-inventory_id -> (product_id, change_type, quantity, creation_datetime, reason, status,
+event_id -> (product_id, change_type, quantity, creation_datetime, reason, status,
 status_change_datetime, adjusted_by)
 
-Table inventory is in BCNF.
+Table inventory_events_log is in BCNF.
 
 Reasons for change_type = 'RETURN' are:
 'damaged_product', 'defective_product', 'wrong_item', 
@@ -168,23 +167,23 @@ reservation_id -> (user_id, creation_datetime, expiration_datetime, status)
 
 Table reservations is in BCNF.
 
-Table inventory_orders:
+Table inventory_events_orders_reservations_link:
 Fields:
-inventory_id mediumint primary key,
+inventory_event_id mediumint primary key,
 order_id mediumint,
 reservation_id mediumint not null,
 product_id mediumint not null,
 quantity int not null,
 price_at_purchase decimal(8,2),
-foreign key(inventory_id) references inventory(inventory_id),
+foreign key(inventory_event_id) references inventory(event_id),
 foreign key(order_id) references orders(order_id),
 foreign key(reservation_id) references reservations(reservation_id),
 foreign key(product_id) references products(product_id)
 
 Functional Dependencies:
-inventory_id -> (order_id, reservation_id, product_id, quantity, price_at_purchase)
+inventory_event_id -> (order_id, reservation_id, product_id, quantity, price_at_purchase)
 
-Table inventory_orders is in BCNF.
+Table inventory_events_orders_reservations_link is in BCNF.
 
 Table product_price_history:
 Fields:
@@ -201,3 +200,18 @@ history_id -> (product_id, old_price, new_price, current_price_version, price_ch
 (product_id, price_change_datetime) -> (history_id, old_price, new_price, current_price_version)
 
 Table product_price_history is in BCNF.
+
+Table return_events_log:
+Fields:
+inventory_event_id mediumint primary key,
+quantity int not null,
+creation_datetime timestamp default current_timestamp not null,
+reason varchar(45),
+status enum('ACTIVE', 'CANCELLED', 'COMPLETED') not null,
+status_change_datetime timestamp default null,
+foreign key(inventory_event_id) references inventory_events_log(event_id)
+
+Functional Dependencies:
+inventory_event_id -> (quantity, creation_datetime, reason, status, status_change_datetime)
+
+Table return_events_log is in BCNF.

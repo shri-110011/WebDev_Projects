@@ -6,7 +6,8 @@ create table orders (
 	order_id mediumint primary key auto_increment,
     user_id mediumint not null,
     total_amount decimal(9, 2) not null,
-    order_status enum('PENDING', 'CONFIRMED', 'PROCESSING', 'PACKAGED', 'SHIPPED', 
+    refunded_amount decimal(9, 2) default 0,
+    order_status enum('PENDING', 'CONFIRMED', 'PROCESSING', 'PACKAGED', 'SHIPPED',
     'DELIVERED', 'CANCELLED', 'RETURNED', 'REFUNDED') not null,
     order_creation_datetime timestamp default current_timestamp not null,
     order_cancellation_datetime timestamp default null

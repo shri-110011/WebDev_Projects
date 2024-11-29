@@ -35,7 +35,7 @@ public class Reservation {
 	private String status;
 	
 	@OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
-	private List<InventoryOrder> inventoryOrders;
+	private List<InventoryEventOrderReservationLink> inventoryEventOrderReservationLinks;
 
 	public Reservation() {
 	
@@ -90,19 +90,21 @@ public class Reservation {
 		this.status = status;
 	}
 	
-	public List<InventoryOrder> getInventoryOrders() {
-		return inventoryOrders;
+	public List<InventoryEventOrderReservationLink> getInventoryEventOrderReservationLinks() {
+		return inventoryEventOrderReservationLinks;
 	}
 
-	public void setInventoryOrders(List<InventoryOrder> inventoryOrders) {
-		this.inventoryOrders = inventoryOrders;
+	public void setInventoryEventOrderReservationLinks(
+			List<InventoryEventOrderReservationLink> inventoryEventOrderReservationLinks) {
+		this.inventoryEventOrderReservationLinks = inventoryEventOrderReservationLinks;
 	}
 	
-	public void addInventoryOrder(InventoryOrder inventoryOrder) {
-		if(inventoryOrders == null) {
-			inventoryOrders = new ArrayList<>();
+	public void addInventoryEventOrderReservationLink(
+			InventoryEventOrderReservationLink inventoryEventOrderReservationLink) {
+		if(inventoryEventOrderReservationLinks == null) {
+			inventoryEventOrderReservationLinks = new ArrayList<>();
 		}
-		inventoryOrders.add(inventoryOrder);
+		inventoryEventOrderReservationLinks.add(inventoryEventOrderReservationLink);
 	}
 
 	@Override

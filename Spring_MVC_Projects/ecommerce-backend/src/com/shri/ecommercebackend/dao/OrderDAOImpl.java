@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.shri.ecommercebackend.entity.ChangeType;
-import com.shri.ecommercebackend.entity.Inventory;
-import com.shri.ecommercebackend.entity.InventoryOrder;
-import com.shri.ecommercebackend.entity.InventoryStatus;
+import com.shri.ecommercebackend.entity.InventoryEventLog;
+import com.shri.ecommercebackend.entity.InventoryEventOrderReservationLink;
+import com.shri.ecommercebackend.entity.InventoryEventStatus;
 import com.shri.ecommercebackend.entity.Order;
 import com.shri.ecommercebackend.entity.OrderItem;
 import com.shri.ecommercebackend.entity.OrderStatus;
@@ -48,14 +48,15 @@ public class OrderDAOImpl implements OrderDAO {
 		
 		System.out.println("Getting inventory orders...");
 		
-		List<InventoryOrder> inventoryOrders = reservation.getInventoryOrders();
+		List<InventoryEventOrderReservationLink> inventoryOrderReservationLinks = 
+				reservation.getInventoryEventOrderReservationLinks();
 		
-		System.out.println(inventoryOrders);
+		System.out.println(inventoryOrderReservationLinks);
 		
 		BigDecimal totalAmount = BigDecimal.ZERO;
-		for(InventoryOrder inventoryOrder : inventoryOrders) {
-			BigDecimal priceAtPurchase = inventoryOrder.getPriceAtPurchase();
-			BigDecimal quantity = BigDecimal.valueOf(inventoryOrder.getQuantity());
+		for(InventoryEventOrderReservationLink inventoryOrderReservationLink : inventoryOrderReservationLinks) {
+			BigDecimal priceAtPurchase = inventoryOrderReservationLink.getPriceAtPurchase();
+			BigDecimal quantity = BigDecimal.valueOf(inventoryOrderReservationLink.getQuantity());
 			totalAmount = priceAtPurchase.multiply(quantity).add(totalAmount);
 		};
 		
@@ -68,23 +69,25 @@ public class OrderDAOImpl implements OrderDAO {
 		
 		System.out.println("orderId: " + orderId);
 		
-		inventoryOrders.stream().forEach(inventoryOrder -> {
-			Inventory inventory = inventoryOrder.getInventory();
-			inventory.setChangeType(ChangeType.SALE);
-			inventory.setStatus(InventoryStatus.COMPLETED);
-			inventory.setStatusChangeDatetime(LocalDateTime.now());
+		inventoryOrderReservationLinks.stream().forEach(inventoryOrderReservationLink -> {
+			InventoryEventLog inventoryEventLog = inventoryOrderReservationLink.getInventoryEventLog();
+			inventoryEventLog.setChangeType(ChangeType.SALE);
+			inventoryEventLog.setStatus(InventoryEventStatus.COMPLETED);
+			inventoryEventLog.setStatusChangeDatetime(LocalDateTime.now());
 			
-			OrderItem orderItem = new OrderItem(orderId, inventoryOrder.getProductId(), 
-					inventoryOrder.getQuantity(), inventoryOrder.getPriceAtPurchase());
+			OrderItem orderItem = new OrderItem(orderId, inventoryOrderReservationLink.getProductId(), 
+					inventoryOrderReservationLink.getQuantity(), 
+					inventoryOrderReservationLink.getPriceAtPurchase());
 			System.out.println(orderItem);
-			System.out.println(inventoryOrder.getInventory());
+			System.out.println(inventoryOrderReservationLink.getInventoryEventLog());
+			
 			// Synchronize the relationship
-			order.addInventoryOrder(inventoryOrder);
+			order.addInventoryEventOrderReservationLink(inventoryOrderReservationLink);
 			order.addOrderItem(orderItem);
 		});
 		
 		System.out.println(order.getOrderItems());
-		System.out.println(order.getInventoryOrders());
+		System.out.println(order.getInventoryEventOrderReservationLinks());
 		reservation.setStatus(ReservationEntityStatus.USED);
 		currentSession.save(reservation);
 		
