@@ -29,7 +29,7 @@ public class OrderItem {
 		this.quantity = quantity;
 		this.priceAtPurchase = priceAtPurchase;
 	}
-
+	
 	public OrderItemKey getOrderItemKey() {
 		return orderItemKey;
 	}

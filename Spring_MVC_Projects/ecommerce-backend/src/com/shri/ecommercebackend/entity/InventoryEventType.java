@@ -1,5 +1,5 @@
 package com.shri.ecommercebackend.entity;
 
-public enum ChangeType {
+public enum InventoryEventType {
 	RESTOCK, SALE, RETURN, ADJUSTMENT, RESERVATION
 }

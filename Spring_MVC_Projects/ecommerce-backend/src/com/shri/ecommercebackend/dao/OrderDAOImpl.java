@@ -2,23 +2,33 @@ package com.shri.ecommercebackend.dao;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.shri.ecommercebackend.entity.ChangeType;
+import com.shri.ecommercebackend.dto.CancellationDetailsDTO;
+import com.shri.ecommercebackend.dto.OrderDetailsDTO;
+import com.shri.ecommercebackend.dto.OrderItemDTO;
 import com.shri.ecommercebackend.entity.InventoryEventLog;
 import com.shri.ecommercebackend.entity.InventoryEventOrderReservationLink;
 import com.shri.ecommercebackend.entity.InventoryEventStatus;
+import com.shri.ecommercebackend.entity.InventoryEventType;
 import com.shri.ecommercebackend.entity.Order;
 import com.shri.ecommercebackend.entity.OrderItem;
 import com.shri.ecommercebackend.entity.OrderStatus;
+import com.shri.ecommercebackend.entity.Product;
 import com.shri.ecommercebackend.entity.Reservation;
 import com.shri.ecommercebackend.entity.ReservationEntityStatus;
+import com.shri.ecommercebackend.entity.ReturnEventLog;
+import com.shri.ecommercebackend.entity.ReturnStatus;
+import com.shri.ecommercebackend.exception.InvalidOrderIdException;
 import com.shri.ecommercebackend.exception.InvalidReservationIdException;
+import com.shri.ecommercebackend.response.OrderStatusResponse;
 
 @Repository
 public class OrderDAOImpl implements OrderDAO {
@@ -45,8 +55,7 @@ public class OrderDAOImpl implements OrderDAO {
 		if(reservation.getStatus() == ReservationEntityStatus.USED)
 			throw new InvalidReservationIdException("Reservation id: " + reservationId + " has already been used!");
 		
-		
-		System.out.println("Getting inventory orders...");
+		System.out.println("Getting inventoryOrderReservationLinks...");
 		
 		List<InventoryEventOrderReservationLink> inventoryOrderReservationLinks = 
 				reservation.getInventoryEventOrderReservationLinks();
@@ -71,7 +80,7 @@ public class OrderDAOImpl implements OrderDAO {
 		
 		inventoryOrderReservationLinks.stream().forEach(inventoryOrderReservationLink -> {
 			InventoryEventLog inventoryEventLog = inventoryOrderReservationLink.getInventoryEventLog();
-			inventoryEventLog.setChangeType(ChangeType.SALE);
+			inventoryEventLog.setChangeType(InventoryEventType.SALE);
 			inventoryEventLog.setStatus(InventoryEventStatus.COMPLETED);
 			inventoryEventLog.setStatusChangeDatetime(LocalDateTime.now());
 			
@@ -94,4 +103,98 @@ public class OrderDAOImpl implements OrderDAO {
 		return order;
 	}
 
+	@Override
+	public BigDecimal cancelOrder(int orderId) {
+		Session currentSession = sessionFactory.getCurrentSession();
+		
+		Order order = currentSession.get(Order.class, orderId);
+		
+		if(order == null)
+			throw new InvalidOrderIdException("Order id: " + orderId + " is invalid!");
+		
+		if(order.getOrderStatus() == OrderStatus.CANCELLED)
+			throw new InvalidReservationIdException("Order id: " + orderId + " has already been cancelled!");
+		
+		System.out.println("Getting inventoryOrderReservationLinks...");
+		
+		List<InventoryEventOrderReservationLink> inventoryEventOrderReservationLinks = 
+				order.getInventoryEventOrderReservationLinks();
+		
+		for(InventoryEventOrderReservationLink inventoryEventOrderReservationLink : 
+			inventoryEventOrderReservationLinks) {
+			ReturnEventLog returnEventLog = new ReturnEventLog();
+			returnEventLog.setInventoryEventId(inventoryEventOrderReservationLink.getId());
+			returnEventLog.setQuantity(inventoryEventOrderReservationLink.getQuantity());
+			returnEventLog.setReason("User request");
+			returnEventLog.setStatus(ReturnStatus.COMPLETED);
+			
+			currentSession.save(returnEventLog);
+		}
+		
+		order.setOrderStatus(OrderStatus.CANCELLED);
+		order.setOrderCancellationDateTime(LocalDateTime.now());
+		order.setRefundedAmount(order.getTotalAmount());
+		
+		currentSession.save(order);
+		
+		return order.getRefundedAmount();
+	}
+	
+	@Override
+	public List<OrderItem> getOrderItems(int orderId) {
+		Session currentSession = sessionFactory.getCurrentSession();
+		
+		Order order = currentSession.get(Order.class, orderId);
+		
+		System.out.println("Getting inventoryOrderReservationLinks...");
+		
+		return order.getOrderItems();
+	}
+
+	@Override
+	public OrderStatusResponse getOrderStatus(int orderId) {
+		Session currentSession = sessionFactory.getCurrentSession();
+		
+		Order order = currentSession.get(Order.class, orderId);
+		
+		if(order == null)
+			throw new InvalidOrderIdException("Order id: " + orderId + " is invalid!");
+		
+		List<OrderItem> orderItems = order.getOrderItems();
+		
+		List<Integer> productIds = orderItems.stream()
+				.map(orderItem -> orderItem.getOrderItemKey().getProductId())
+				.toList();
+		
+		Query<String> query = currentSession.createQuery(
+				"select new java.lang.String(p.product_name) from Product p where p.productId in :productIds",
+				String.class
+				);
+		query.setParameter("productIds", productIds);
+		
+		List<String> productNames = query.getResultList();
+		
+		List<OrderItemDTO> orderItemDTOs = new ArrayList<>();
+		
+		int i = 0;
+		for(OrderItem orderItem : orderItems) {
+			int productId = orderItem.getOrderItemKey().getProductId();
+			orderItemDTOs.add(new OrderItemDTO(productId, productNames.get(i), 
+					orderItem.getQuantity(), orderItem.getPriceAtPurchase()));
+		}
+		
+		OrderDetailsDTO orderDetailsDTO = new OrderDetailsDTO(orderItemDTOs, 
+				order.getOrderCreationDateTime(), order.getTotalAmount());
+		
+		CancellationDetailsDTO cancellationDetailsDTO = null;
+		
+		if(order.getOrderStatus() == OrderStatus.CANCELLED) {
+			cancellationDetailsDTO = new CancellationDetailsDTO(order.getOrderCancellationDateTime(), 
+					order.getRefundedAmount());
+		}
+		
+		return new OrderStatusResponse(orderId, order.getOrderStatus(), cancellationDetailsDTO, 
+				orderDetailsDTO, System.currentTimeMillis());
+	}
+	
 }

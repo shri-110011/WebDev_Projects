@@ -1,9 +1,6 @@
 package com.shri.ecommercebackend.service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,15 +20,13 @@ import com.shri.ecommercebackend.dto.PriceMismatchItemDTO;
 import com.shri.ecommercebackend.dto.ProductInventoryDTO;
 import com.shri.ecommercebackend.dto.ReservedItemDTO;
 import com.shri.ecommercebackend.dto.UnavailableItemDTO;
-import com.shri.ecommercebackend.entity.ChangeType;
 import com.shri.ecommercebackend.entity.InventoryEventLog;
 import com.shri.ecommercebackend.entity.InventoryEventStatus;
+import com.shri.ecommercebackend.entity.InventoryEventType;
 import com.shri.ecommercebackend.response.ReservationStatus;
 import com.shri.ecommercebackend.response.ReserveItemsResponse;
 import com.shri.ecommercebackend.validation.CartItem;
 import com.shri.ecommercebackend.validation.ReserveItemsRequest;
-
-import redis.clients.jedis.Jedis;
 
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
@@ -44,9 +39,6 @@ public class CheckoutServiceImpl implements CheckoutService {
 	
 	@Autowired
 	private ReservationDAO reservationDAO;
-
-	@Autowired
-	private Jedis jedis;
 
 	@Autowired
 	private RedisService redisService;
@@ -85,7 +77,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 		
 		Map<Integer, InvalidItemReason> invalidItemsMap = getInvalidItems(cartItems);
 		
-		List<String> luaScriptResults = executeLuaScriptToReserveItems(cartItems, invalidItemsMap);
+		List<String> luaScriptResults = redisService.executeLuaScriptToReserveItems(cartItems, invalidItemsMap);
 		
 		List<CartItem> validatedCartItems = getValidatedCartItems(luaScriptResults, cartItems, invalidItemsMap);
 		
@@ -125,39 +117,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 		return invalidItemsMap;
 	}
 
-	private List<String> executeLuaScriptToReserveItems(List<CartItem> cartItems, 
-			Map<Integer, InvalidItemReason> invalidItemsMap) {
-		String luaScript;
-		try {
-			luaScript = new String(Files.readAllBytes(Paths.get("D:\\WebDev_Projects\\Spring_MVC_Projects\\ecommerce-backend\\src\\resources\\decrement_stock.lua")));
-
-			// Keys and Arguments setup
-		    List<String> keys = new ArrayList<>();
-		    List<String> args = new ArrayList<>(); // qty and price pairs for each product
-		    
-		    int productId;
-		    for(CartItem cartItem : cartItems) {
-		    	productId = cartItem.getProductId();
-		    	if(!invalidItemsMap.containsKey(productId)) {
-		    		keys.add("productsInventory:" + cartItem.getProductId());
-		    		args.add(Integer.toString(cartItem.getQuantity()));
-		    		args.add(cartItem.getPricePerUnit().toString());
-		    	}
-		    }
-		    
-		    System.out.println("keys: " + keys);
-		    System.out.println("args: " + args);
-		    
-		    // Execute Lua script with all keys and arguments in one call
-		    Object result = jedis.eval(luaScript, keys, args);
-		    System.out.println("Script result: " + result);
-		    
-		    return (List<String>)result;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+	
 	
 	private List<CartItem> getValidatedCartItems(List<String> luaScriptResults, List<CartItem> cartItems, 
 			Map<Integer, InvalidItemReason> invalidItemsMap) {
@@ -187,7 +147,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 			InventoryEventLog inventoryEventLog = new InventoryEventLog();
 			inventoryEventLog.setProductId(cartItem.getProductId());
 			inventoryEventLog.setQuantity(cartItem.getQuantity());
-			inventoryEventLog.setChangeType(ChangeType.RESERVATION);
+			inventoryEventLog.setChangeType(InventoryEventType.RESERVATION);
 			inventoryEventLog.setStatus(InventoryEventStatus.ACTIVE);
 			inventoryEventLogs.add(inventoryEventLog);
 		}

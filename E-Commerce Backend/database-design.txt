@@ -45,7 +45,7 @@ Table inventory_events_log:
 Fields:
 event_id mediumint primary key auto_increment,
 product_id mediumint not null,
-change_type enum('RESTOCK', 'SALE', 'ADJUSTMENT', 'RESERVATION') not null,
+event_type enum('RESTOCK', 'SALE', 'ADJUSTMENT', 'RESERVATION') not null,
 quantity int not null,
 creation_datetime timestamp default current_timestamp not null,
 reason varchar(45),
@@ -55,21 +55,21 @@ adjusted_by varchar(45),
 foreign key(product_id) references products(product_id)
 
 Functional Dependencies:
-event_id -> (product_id, change_type, quantity, creation_datetime, reason, status,
+event_id -> (product_id, event_type, quantity, creation_datetime, reason, status,
 status_change_datetime, adjusted_by)
 
 Table inventory_events_log is in BCNF.
 
-Reasons for change_type = 'RETURN' are:
+Reasons for event_type = 'RETURN' are:
 'damaged_product', 'defective_product', 'wrong_item', 
 'change_of_mind', 'size_or_fit_issues', 'expired_product', 'not_as_described'
 
-Reasons for change_type = 'adjustment' are:
+Reasons for event_type = 'adjustment' are:
 'damaged_goods', 'miscount', 'theft', 'expired_goods', 'supplier_returns'
 
 Reason for change_of_mind = 'restock': New stock
 
-Reasons description for change_type = 'return' are:
+Reasons description for event_type = 'return' are:
 'damaged_product' - The product is damaged upon arrival, necessitating a return.
 'defective_product' - The item received is not functioning as expected or is faulty.
 'wrong_item' - The customer receives a product different from what they ordered.
@@ -81,7 +81,7 @@ expected.
 expired upon receipt.
 'not_as_described' - The product does not meet the customer's expectations for quality.
 
-Reasons description for change_type = 'adjustment' are:
+Reasons description for event_type = 'adjustment' are:
 'damaged_goods' - Products that are damaged during shipping, handling, or storage 
 and need to be removed from inventory.
 

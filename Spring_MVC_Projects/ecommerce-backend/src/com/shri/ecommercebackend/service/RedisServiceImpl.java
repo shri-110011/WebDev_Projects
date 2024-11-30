@@ -1,9 +1,13 @@
 package com.shri.ecommercebackend.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -11,8 +15,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.shri.ecommercebackend.dao.InvalidItemReason;
 import com.shri.ecommercebackend.dao.ProductDAO;
 import com.shri.ecommercebackend.dto.ProductInventoryDTO;
+import com.shri.ecommercebackend.validation.CartItem;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
@@ -24,7 +30,7 @@ public class RedisServiceImpl implements RedisService {
 	
 	@Autowired
 	private ProductDAO productDAO;
-	
+		
 	@Autowired
 	public RedisServiceImpl(Jedis jedis) {
 		this.jedis = jedis;
@@ -74,6 +80,79 @@ public class RedisServiceImpl implements RedisService {
 		}
 		System.out.println("Products not present in cache: " + productIdsOfItemsNotPresentInCache);
 		return productIdsOfItemsNotPresentInCache;
+	}
+	
+	@Override
+	public List<String> executeLuaScriptToReserveItems(List<CartItem> cartItems, 
+			Map<Integer, InvalidItemReason> invalidItemsMap) {
+		System.out.println("Executing Lua script to reserve items...");
+		String luaScript;
+		try {
+			luaScript = new String(Files.readAllBytes(Paths.get("D:\\WebDev_Projects\\Spring_MVC_Projects\\ecommerce-backend\\src\\resources\\decrement_stock.lua")));
+
+			// Keys and Arguments setup
+		    List<String> keys = new ArrayList<>();
+		    List<String> args = new ArrayList<>(); // qty and price pairs for each product
+		    
+		    int productId;
+		    for(CartItem cartItem : cartItems) {
+		    	productId = cartItem.getProductId();
+		    	if(!invalidItemsMap.containsKey(productId)) {
+		    		keys.add("productsInventory:" + cartItem.getProductId());
+		    		args.add(Integer.toString(cartItem.getQuantity()));
+		    		args.add(cartItem.getPricePerUnit().toString());
+		    	}
+		    }
+		    
+		    System.out.println("keys: " + keys);
+		    System.out.println("args: " + args);
+		    
+		    // Execute Lua script with all keys and arguments in one call
+		    Object result = jedis.eval(luaScript, keys, args);
+		    System.out.println("Script result: " + result);
+		    
+		    return (List<String>)result;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public void executeLuaScriptToIncreaseAvailableQuantity(Map<Integer, Integer> productIdQuantityMap) {
+		List<Integer> productIds = new ArrayList<>(productIdQuantityMap.keySet());
+		
+		List<Integer> productIdsOfItemsNotPresentInCache = getProductIdsOfItemsNotPresentInCache(productIds);
+		
+		List<ProductInventoryDTO> productInventoryDTO = productDAO
+				.getProductsInventoryInfo(productIdsOfItemsNotPresentInCache);
+		
+		loadProductsIntoCache(productInventoryDTO);
+		
+		System.out.println("Executing Lua script to increase available items quantity...");
+		String luaScript;
+		try {
+			luaScript = new String(Files.readAllBytes(Paths.get("D:\\WebDev_Projects\\Spring_MVC_Projects\\ecommerce-backend\\src\\resources\\increment_stock.lua")));
+
+			// Keys and Arguments setup
+		    List<String> keys = new ArrayList<>();
+		    List<String> args = new ArrayList<>(); // qty and price pairs for each product
+		    
+		    Set<Map.Entry<Integer, Integer>> entries = productIdQuantityMap.entrySet();
+		    for(Map.Entry<Integer, Integer> entry : entries) {
+	    		keys.add("productsInventory:" + entry.getKey());
+	    		args.add(Integer.toString(entry.getValue()));
+		    }
+		    
+		    System.out.println("keys: " + keys);
+		    System.out.println("args: " + args);
+		    
+		    // Execute Lua script with all keys and arguments in one call
+		    Object result = jedis.eval(luaScript, keys, args);
+		    System.out.println("Script result: " + result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

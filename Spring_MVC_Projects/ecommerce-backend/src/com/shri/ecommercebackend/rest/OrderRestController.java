@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shri.ecommercebackend.exception.ErrorResponse;
+import com.shri.ecommercebackend.exception.InvalidOrderIdException;
 import com.shri.ecommercebackend.exception.InvalidReservationIdException;
+import com.shri.ecommercebackend.response.CancelOrderResponse;
 import com.shri.ecommercebackend.response.PlaceOrderResponse;
 import com.shri.ecommercebackend.service.OrderService;
 
@@ -29,6 +31,15 @@ public class OrderRestController {
 		return ResponseEntity.ok(placeOrderResponse);
 	}
 	
+	@PostMapping(path = "/v1/cancel-order")
+	public ResponseEntity<CancelOrderResponse> cancelOrder(@RequestParam("orderId") int orderIdParam) {
+//		int orderId = Integer.parseInt(orderIdParam);
+		if(orderIdParam <= 0) throw new InvalidReservationIdException("Order id: " + orderIdParam + " is invalid!");
+		CancelOrderResponse cancelOrderResponse = orderService.cancelOrder(orderIdParam);
+		return ResponseEntity.ok(cancelOrderResponse);
+	}
+
+	
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleException(InvalidReservationIdException exc) {
 		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exc.getMessage(), 
@@ -37,4 +48,12 @@ public class OrderRestController {
 		return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 	
+	@ExceptionHandler
+	public ResponseEntity<ErrorResponse> handleException(InvalidOrderIdException exc) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exc.getMessage(), 
+				System.currentTimeMillis());
+		
+		return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
 }

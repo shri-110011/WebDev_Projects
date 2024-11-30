@@ -29,6 +29,9 @@ public class Order {
 
 	@Column(name = "total_amount")
 	private BigDecimal totalAmount;
+	
+	@Column(name = "refunded_amount")
+	private BigDecimal refundedAmount;
 
 	@Column(name = "order_status")
 	private String orderStatus;
@@ -36,7 +39,7 @@ public class Order {
 	@Column(name = "order_creation_datetime", insertable = false, updatable = false)
 	private LocalDateTime orderCreationDateTime;
 
-	@Column(name = "order_cancellation_datetime", insertable = false, updatable = false)
+	@Column(name = "order_cancellation_datetime")
 	private LocalDateTime orderCancellationDateTime;
 
 	@OneToMany(cascade = CascadeType.ALL)
@@ -73,6 +76,14 @@ public class Order {
 
 	public void setTotalAmount(BigDecimal totalAmount) {
 		this.totalAmount = totalAmount;
+	}
+
+	public BigDecimal getRefundedAmount() {
+		return refundedAmount;
+	}
+
+	public void setRefundedAmount(BigDecimal refundedAmount) {
+		this.refundedAmount = refundedAmount;
 	}
 
 	public OrderStatus getOrderStatus() {
@@ -137,8 +148,8 @@ public class Order {
 
 	@Override
 	public String toString() {
-		return "Order [orderId=" + orderId + ", userId=" + userId + ", totalAmount=" + totalAmount + ", orderStatus="
-				+ orderStatus + "]";
+		return "Order [orderId=" + orderId + ", userId=" + userId + ", totalAmount=" + totalAmount + ", refundedAmount="
+				+ refundedAmount + ", orderStatus=" + orderStatus + "]";
 	}
 
 }

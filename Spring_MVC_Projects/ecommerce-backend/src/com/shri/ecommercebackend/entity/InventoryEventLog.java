@@ -21,8 +21,8 @@ public class InventoryEventLog {
 	@Column(name = "product_id")
 	private int productId;
 
-	@Column(name = "change_type")
-	private String changeType;
+	@Column(name = "event_type")
+	private String eventType;
 	
 	@Column(name = "quantity")
 	private int quantity;
@@ -43,10 +43,10 @@ public class InventoryEventLog {
 		
 	}
 
-	public InventoryEventLog(int productId, ChangeType changeType, int quantity, String reason, 
+	public InventoryEventLog(int productId, InventoryEventType eventType, int quantity, String reason, 
 			InventoryEventStatus status, LocalDateTime statusChangeDatetime, String adjustedBy) {
 		this.productId = productId;
-		this.changeType = changeType.name();
+		this.eventType = eventType.name();
 		this.quantity = quantity;
 		this.reason = reason;
 		this.status = status.name();
@@ -70,12 +70,12 @@ public class InventoryEventLog {
 		this.productId = productId;
 	}
 
-	public ChangeType getChangeType() {
-		return ChangeType.valueOf(changeType);
+	public InventoryEventType getChangeType() {
+		return InventoryEventType.valueOf(eventType);
 	}
 
-	public void setChangeType(ChangeType changeType) {
-		this.changeType = changeType.name();
+	public void setChangeType(InventoryEventType eventType) {
+		this.eventType = eventType.name();
 	}
 
 	public int getQuantity() {
@@ -120,7 +120,7 @@ public class InventoryEventLog {
 
 	@Override
 	public String toString() {
-		return "InventoryEventLog [eventId=" + eventId + ", productId=" + productId + ", changeType=" + changeType
+		return "InventoryEventLog [eventId=" + eventId + ", productId=" + productId + ", eventType=" + eventType
 				+ ", quantity=" + quantity + ", reason=" + reason + ", status=" + status + ", statusChangeDatetime="
 				+ statusChangeDatetime + ", adjustedBy=" + adjustedBy + "]";
 	}

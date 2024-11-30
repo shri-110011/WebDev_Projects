@@ -149,7 +149,15 @@ or
 5. User should be able to cancel an order.
 API Endpoint:
 /baseURL/api/v1/orders/{orderId}
-Method: Delete
+Method: POST
+
+Response body:
+{
+    "orderId": 1000005,
+    "orderStatus": "CANCELLED",
+    "refundAmount": 3285.00,
+    "message": "Your order has been cancelled successfully!"
+}
 
 6. User should be able to track the order status.
 API Endpoint:

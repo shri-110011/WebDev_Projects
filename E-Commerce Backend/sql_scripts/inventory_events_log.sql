@@ -5,7 +5,7 @@ drop table if exists inventory_event_log;
 create table inventory_events_log (
 	event_id mediumint primary key auto_increment,
     product_id mediumint not null,
-    change_type enum('RESTOCK', 'SALE', 'ADJUSTMENT', 'RESERVATION') not null,
+    event_type enum('RESTOCK', 'SALE', 'ADJUSTMENT', 'RESERVATION') not null,
     quantity int not null,
     creation_datetime timestamp default current_timestamp not null,
     reason varchar(45),
@@ -20,7 +20,7 @@ select * from inventory_events_log;
 -- truncate inventory_events_log;
 -- alter table inventory_events_log auto_increment = 1000001;
 
--- SET FOREIGN_KEY_CHECKS = 0;
+-- SET FOREIGN_KEY_CHECKS = 1;
 
 -- desc inventory_events_log;
 
