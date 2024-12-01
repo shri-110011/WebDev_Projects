@@ -1,6 +1,6 @@
 -- use ecommerce_db;
 
-drop table if exists inventory_event_log;
+drop table if exists inventory_events_log;
 
 create table inventory_events_log (
 	event_id mediumint primary key auto_increment,

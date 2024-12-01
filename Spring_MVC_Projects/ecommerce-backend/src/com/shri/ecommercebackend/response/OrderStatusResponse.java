@@ -8,16 +8,16 @@ public class OrderStatusResponse {
 
 	private int orderId;
 	private OrderStatus orderStatus;
-	private CancellationDetailsDTO cancellationDetailsDTO;
-	private OrderDetailsDTO orderDetailsDTO;
+	private CancellationDetailsDTO cancellationDetails;
+	private OrderDetailsDTO orderDetails;
 	private long timestamp;
 	
-	public OrderStatusResponse(int orderId, OrderStatus orderStatus, CancellationDetailsDTO cancellationDetailsDTO,
+	public OrderStatusResponse(int orderId, OrderStatus orderStatus, CancellationDetailsDTO cancellationDetails,
 			OrderDetailsDTO orderDetailsDTO, long timestamp) {
 		this.orderId = orderId;
 		this.orderStatus = orderStatus;
-		this.cancellationDetailsDTO = cancellationDetailsDTO;
-		this.orderDetailsDTO = orderDetailsDTO;
+		this.cancellationDetails = cancellationDetails;
+		this.orderDetails = orderDetailsDTO;
 		this.timestamp = timestamp;
 	}
 
@@ -30,11 +30,11 @@ public class OrderStatusResponse {
 	}
 
 	public CancellationDetailsDTO getCancellationDetailsDTO() {
-		return cancellationDetailsDTO;
+		return cancellationDetails;
 	}
 
 	public OrderDetailsDTO getOrderDetailsDTO() {
-		return orderDetailsDTO;
+		return orderDetails;
 	}
 
 	public long getTimestamp() {
@@ -43,8 +43,8 @@ public class OrderStatusResponse {
 
 	@Override
 	public String toString() {
-		return "OrderStatusResponse [orderId=" + orderId + ", orderStatus=" + orderStatus + ", cancellationDetailsDTO="
-				+ cancellationDetailsDTO + ", orderDetailsDTO=" + orderDetailsDTO + ", timestamp=" + timestamp + "]";
+		return "OrderStatusResponse [orderId=" + orderId + ", orderStatus=" + orderStatus + ", cancellationDetails="
+				+ cancellationDetails + ", orderDetails=" + orderDetails + ", timestamp=" + timestamp + "]";
 	}
 		
 }

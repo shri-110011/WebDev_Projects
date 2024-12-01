@@ -1,10 +1,17 @@
 package com.shri.ecommercebackend.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -12,56 +19,52 @@ import javax.persistence.Table;
 public class ReturnEventLog {
 	
 	@Id
-	@Column(name = "inventory_event_id")
-	private int inventoryEventId;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "return_id")
+	private int returnId;
 	
-	@Column(name = "quantity")
-	private int quantity;
+	@Column(name = "order_id")
+	private int orderId;
 	
-	@Column(name = "reason")
-	private String reason;
-	
+	@Column(name = "creation_datetime", insertable = false, updatable = false)
+	private LocalDateTime creationDatetime;
+		
 	@Column(name = "status")
 	private String status;
 	
 	@Column(name = "status_change_datetime")
 	private LocalDateTime statusChangeDatetime;
 	
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "return_id")
+	private List<ReturnItem> returnItems;
+	
 	public ReturnEventLog() {
 		
 	}
 
-	public ReturnEventLog(int inventoryEventId, int quantity, String reason, String status,
-			LocalDateTime statusChangeDatetime) {
-		this.inventoryEventId = inventoryEventId;
-		this.quantity = quantity;
-		this.reason = reason;
-		this.status = status;
-		this.statusChangeDatetime = statusChangeDatetime;
+	public int getReturnId() {
+		return returnId;
 	}
 
-	public int getInventoryEventId() {
-		return inventoryEventId;
+	public void setReturnId(int returnId) {
+		this.returnId = returnId;
 	}
 
-	public void setInventoryEventId(int inventoryEventId) {
-		this.inventoryEventId = inventoryEventId;
+	public int getOrderId() {
+		return orderId;
 	}
 
-	public int getQuantity() {
-		return quantity;
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
 	}
 
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
+	public LocalDateTime getCreationDatetime() {
+		return creationDatetime;
 	}
 
-	public String getReason() {
-		return reason;
-	}
-
-	public void setReason(String reason) {
-		this.reason = reason;
+	public void setCreationDatetime(LocalDateTime creationDatetime) {
+		this.creationDatetime = creationDatetime;
 	}
 
 	public ReturnStatus getStatus() {
@@ -79,11 +82,18 @@ public class ReturnEventLog {
 	public void setStatusChangeDatetime(LocalDateTime statusChangeDatetime) {
 		this.statusChangeDatetime = statusChangeDatetime;
 	}
+	
+	public void addReturnItem(ReturnItem returnItem) {
+		if (returnItems == null) {
+			returnItems = new ArrayList<>();
+		}
+		returnItems.add(returnItem);
+	}
 
 	@Override
 	public String toString() {
-		return "ReturnEventLog [inventoryEventId=" + inventoryEventId + ", quantity=" + quantity + ", reason=" + reason
-				+ ", status=" + status + ", statusChangeDatetime=" + statusChangeDatetime + "]";
+		return "ReturnEventLog [returnId=" + returnId + ", orderId=" + orderId + ", creationDatetime="
+				+ creationDatetime + ", status=" + status + ", statusChangeDatetime=" + statusChangeDatetime + "]";
 	}
 	
 }

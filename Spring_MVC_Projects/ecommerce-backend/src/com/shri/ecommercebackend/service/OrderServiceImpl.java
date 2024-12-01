@@ -14,6 +14,7 @@ import com.shri.ecommercebackend.entity.Order;
 import com.shri.ecommercebackend.entity.OrderItem;
 import com.shri.ecommercebackend.entity.OrderStatus;
 import com.shri.ecommercebackend.response.CancelOrderResponse;
+import com.shri.ecommercebackend.response.OrderStatusResponse;
 import com.shri.ecommercebackend.response.PlaceOrderResponse;
 
 @Service
@@ -54,6 +55,12 @@ public class OrderServiceImpl implements OrderService {
 		
 		String message = "Your order has been cancelled successfully!";
 		return new CancelOrderResponse(orderId, OrderStatus.CANCELLED, refundAmount, message);
+	}
+
+	@Override
+	@Transactional
+	public OrderStatusResponse getOrderStatus(int orderId) {
+		return orderDAO.getOrderStatus(orderId);
 	}
 
 }

@@ -25,6 +25,7 @@ import com.shri.ecommercebackend.entity.Product;
 import com.shri.ecommercebackend.entity.Reservation;
 import com.shri.ecommercebackend.entity.ReservationEntityStatus;
 import com.shri.ecommercebackend.entity.ReturnEventLog;
+import com.shri.ecommercebackend.entity.ReturnItem;
 import com.shri.ecommercebackend.entity.ReturnStatus;
 import com.shri.ecommercebackend.exception.InvalidOrderIdException;
 import com.shri.ecommercebackend.exception.InvalidReservationIdException;
@@ -73,6 +74,7 @@ public class OrderDAOImpl implements OrderDAO {
 		order.setUserId(reservation.getUserId());
 		order.setTotalAmount(totalAmount);
 		order.setOrderStatus(OrderStatus.CONFIRMED);
+		order.setRefundedAmount(BigDecimal.ZERO);
 		
 		int orderId = (int)currentSession.save(order);
 		
@@ -115,20 +117,27 @@ public class OrderDAOImpl implements OrderDAO {
 		if(order.getOrderStatus() == OrderStatus.CANCELLED)
 			throw new InvalidReservationIdException("Order id: " + orderId + " has already been cancelled!");
 		
+		ReturnEventLog returnEventLog = new ReturnEventLog();
+		returnEventLog.setOrderId(orderId);
+		returnEventLog.setStatus(ReturnStatus.COMPLETED);
+		returnEventLog.setStatusChangeDatetime(LocalDateTime.now());
+		
+		int returnId = (Integer)currentSession.save(returnEventLog);
+		
+		System.out.println("returnId: " + returnId);
+		
 		System.out.println("Getting inventoryOrderReservationLinks...");
 		
 		List<InventoryEventOrderReservationLink> inventoryEventOrderReservationLinks = 
 				order.getInventoryEventOrderReservationLinks();
-		
+				
 		for(InventoryEventOrderReservationLink inventoryEventOrderReservationLink : 
 			inventoryEventOrderReservationLinks) {
-			ReturnEventLog returnEventLog = new ReturnEventLog();
-			returnEventLog.setInventoryEventId(inventoryEventOrderReservationLink.getId());
-			returnEventLog.setQuantity(inventoryEventOrderReservationLink.getQuantity());
-			returnEventLog.setReason("User request");
-			returnEventLog.setStatus(ReturnStatus.COMPLETED);
-			
-			currentSession.save(returnEventLog);
+			returnEventLog.addReturnItem(
+					new ReturnItem(returnId, inventoryEventOrderReservationLink.getId(), 
+							inventoryEventOrderReservationLink.getProductId(), 
+							inventoryEventOrderReservationLink.getQuantity(), "User Request")
+			);
 		}
 		
 		order.setOrderStatus(OrderStatus.CANCELLED);
@@ -167,7 +176,7 @@ public class OrderDAOImpl implements OrderDAO {
 				.toList();
 		
 		Query<String> query = currentSession.createQuery(
-				"select new java.lang.String(p.product_name) from Product p where p.productId in :productIds",
+				"select new java.lang.String(p.productName) from Product p where p.productId in :productIds",
 				String.class
 				);
 		query.setParameter("productIds", productIds);
