@@ -79,3 +79,4 @@ How are we going to only batch process the unprocessed returns, reservations and
 adjustments in inventory table?
 We make use of the status column. Only process those returns, reservations and 
 adjustments in inventory table that have status as 'active'.
+

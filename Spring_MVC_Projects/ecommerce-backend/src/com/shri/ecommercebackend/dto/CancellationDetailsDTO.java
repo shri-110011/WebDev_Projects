@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class CancellationDetailsDTO {
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "d MMMM yyyy HH:mm:ss")
 	private LocalDateTime cancelledAt;
 	
 	private BigDecimal refundAmount;

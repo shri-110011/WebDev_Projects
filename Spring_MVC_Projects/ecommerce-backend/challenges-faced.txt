@@ -752,3 +752,32 @@ in the Spring mvc configuration file.
 
 In place of Asia/Kolkata we can put the timezone in which we want the fetched timestamp value 
 from database to be converted to while mapping it to the LocalDateTime reference.
+
+How to customze the format of the LocalDateTime in the response of the Spring Rest app?
+1. Add the following dependency in pom.xml:
+<!--
+https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
+<dependency>
+	<groupId>com.fasterxml.jackson.datatype</groupId>
+	<artifactId>jackson-datatype-jsr310</artifactId>
+	<version>2.9.5</version>
+</dependency>
+
+2. Use @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "d MMMM yyyy HH:mm:ss")
+in the getter method for the LocalDateTime field.
+
+Example:
+@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "d MMMM yyyy HH:mm:ss")
+public LocalDateTime getPlacedAt() {
+	return placedAt;
+}
+
+How to prevent fields having null values from appearing in the JSON response?
+Annote the class with @JsonInclude(Include.NON_NULL) this will prevent the fields having null
+values from appearing in the JSON response during serialization.
+
+Example:
+@JsonInclude(Include.NON_NULL)
+public class OrderStatusResponse {
+	...
+}

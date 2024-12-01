@@ -40,7 +40,7 @@ public class OrderRestController {
 		return ResponseEntity.ok(cancelOrderResponse);
 	}
 
-	@GetMapping(path = "/v1/order/{orderId}/status")
+	@GetMapping(path = "/v1/orders/{orderId}/status")
 	public ResponseEntity<OrderStatusResponse> getOrderStatus(@PathVariable("orderId") int orderId) {
 		if(orderId <= 0) throw new InvalidReservationIdException("Order id: " + orderId + " is invalid!");
 		OrderStatusResponse orderStatusResponse = orderService.getOrderStatus(orderId);

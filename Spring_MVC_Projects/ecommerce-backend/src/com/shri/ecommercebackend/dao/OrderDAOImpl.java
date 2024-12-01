@@ -21,7 +21,6 @@ import com.shri.ecommercebackend.entity.InventoryEventType;
 import com.shri.ecommercebackend.entity.Order;
 import com.shri.ecommercebackend.entity.OrderItem;
 import com.shri.ecommercebackend.entity.OrderStatus;
-import com.shri.ecommercebackend.entity.Product;
 import com.shri.ecommercebackend.entity.Reservation;
 import com.shri.ecommercebackend.entity.ReservationEntityStatus;
 import com.shri.ecommercebackend.entity.ReturnEventLog;
@@ -134,7 +133,7 @@ public class OrderDAOImpl implements OrderDAO {
 		for(InventoryEventOrderReservationLink inventoryEventOrderReservationLink : 
 			inventoryEventOrderReservationLinks) {
 			returnEventLog.addReturnItem(
-					new ReturnItem(returnId, inventoryEventOrderReservationLink.getId(), 
+					new ReturnItem(inventoryEventOrderReservationLink.getId(), returnId,
 							inventoryEventOrderReservationLink.getProductId(), 
 							inventoryEventOrderReservationLink.getQuantity(), "User Request")
 			);

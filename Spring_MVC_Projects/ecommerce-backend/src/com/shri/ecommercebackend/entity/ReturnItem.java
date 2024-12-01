@@ -1,16 +1,20 @@
 package com.shri.ecommercebackend.entity;
 
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "return_items")
 public class ReturnItem {
 	
-	@EmbeddedId
-	private ReturnItemKey returnItemKey;
+	@Id
+	@Column(name = "inventory_event_id")
+	private int inventoryEventId;
+	
+	@Column(name = "return_id")
+	private int returnId;
 	
 	@Column(name = "product_id")
 	private int productId;
@@ -24,20 +28,29 @@ public class ReturnItem {
 	public ReturnItem() {
 		
 	}
-
-	public ReturnItem(int returnId, int inventoryEventId, int productId, int quantity, String reason) {
-		this.returnItemKey = new ReturnItemKey(returnId, inventoryEventId);
+	
+	public ReturnItem(int inventoryEventId, int returnId, int productId, int quantity, String reason) {
+		this.inventoryEventId = inventoryEventId;
+		this.returnId = returnId;
 		this.productId = productId;
 		this.quantity = quantity;
 		this.reason = reason;
 	}
-
-	public ReturnItemKey getReturnItemKey() {
-		return returnItemKey;
+	
+	public int getInventoryEventId() {
+		return inventoryEventId;
 	}
 
-	public void setReturnItemKey(ReturnItemKey returnItemKey) {
-		this.returnItemKey = returnItemKey;
+	public void setInventoryEventId(int inventoryEventId) {
+		this.inventoryEventId = inventoryEventId;
+	}
+
+	public int getReturnId() {
+		return returnId;
+	}
+
+	public void setReturnId(int returnId) {
+		this.returnId = returnId;
 	}
 
 	public int getProductId() {
@@ -66,8 +79,8 @@ public class ReturnItem {
 
 	@Override
 	public String toString() {
-		return "ReturnItem [returnItemKey=" + returnItemKey + ", productId=" + productId + ", quantity=" + quantity
-				+ ", reason=" + reason + "]";
+		return "ReturnItem [inventoryEventId=" + inventoryEventId + ", returnId=" + returnId + 
+				", productId=" + productId + ", quantity=" + quantity + ", reason=" + reason + "]";
 	}
 	
 }

@@ -9,8 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class OrderDetailsDTO {
 	
 	private List<OrderItemDTO> items;
-	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+
 	private LocalDateTime placedAt;
 	
 	private BigDecimal totalAmount;
@@ -25,6 +24,7 @@ public class OrderDetailsDTO {
 		return items;
 	}
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "d MMMM yyyy HH:mm:ss")
 	public LocalDateTime getPlacedAt() {
 		return placedAt;
 	}

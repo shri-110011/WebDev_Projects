@@ -60,7 +60,7 @@
 				<prop key="hibernate.jdbc.batch_size">20</prop> <!-- Batch size of 20 -->
 				<prop key="hibernate.order_inserts">true</prop> <!-- Optimize insert order -->
 				<prop key="hibernate.order_updates">true</prop> <!-- Optimize update order -->
-				
+
 				<prop key="hibernate.jdbc.time_zone">Asia/Kolkata</prop>
 			</props>
 

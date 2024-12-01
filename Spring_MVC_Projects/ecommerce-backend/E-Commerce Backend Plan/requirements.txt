@@ -159,7 +159,51 @@ Response body:
     "message": "Your order has been cancelled successfully!"
 }
 
+or
+
+{
+    "status": 404,
+    "message": "Order id: 1000005 has already been cancelled!",
+    "timeStamp": 1733064331163
+}
+
 6. User should be able to track the order status.
 API Endpoint:
 /baseURL/api/v1/orders/{orderId}/status
 Method: GET
+
+Response body:
+{
+    "orderId": 1000005,
+    "orderStatus": "CANCELLED",
+    "cancellationDetails": {
+        "cancelledAt": "1 December 2024 20:11:37",
+        "refundAmount": 3285.00
+    },
+    "orderDetails": {
+        "items": [
+            {
+                "productId": 1000003,
+                "productName": "Smartwatch",
+                "quantity": 1,
+                "price": 2999.00
+            },
+            {
+                "productId": 1000014,
+                "productName": "Smartwatch",
+                "quantity": 2,
+                "price": 93.00
+            },
+            {
+                "productId": 1000016,
+                "productName": "Smartwatch",
+                "quantity": 5,
+                "price": 20.00
+            }
+        ],
+        "placedAt": "1 December 2024 19:38:53",
+        "totalAmount": 3285.00
+    },
+    "timestamp": 1733064260885
+}
+

@@ -1,9 +1,12 @@
 package com.shri.ecommercebackend.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.shri.ecommercebackend.dto.CancellationDetailsDTO;
 import com.shri.ecommercebackend.dto.OrderDetailsDTO;
 import com.shri.ecommercebackend.entity.OrderStatus;
 
+@JsonInclude(Include.NON_NULL)
 public class OrderStatusResponse {
 
 	private int orderId;
@@ -29,11 +32,11 @@ public class OrderStatusResponse {
 		return orderStatus;
 	}
 
-	public CancellationDetailsDTO getCancellationDetailsDTO() {
+	public CancellationDetailsDTO getCancellationDetails() {
 		return cancellationDetails;
 	}
 
-	public OrderDetailsDTO getOrderDetailsDTO() {
+	public OrderDetailsDTO getOrderDetails() {
 		return orderDetails;
 	}
 
