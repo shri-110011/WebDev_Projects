@@ -29,7 +29,7 @@ The primary goal of this project is to demonstrate a robust and scalable backend
 - Custom Error Handling: Consistent and meaningful error responses for API clients.
 
 ## API Documentation:
-For detailed API information refer to the [API Documentation](./E-Commerce Backend Plan/requirements.txt).
+For detailed API information refer to the [API Documentation](./E-Commerce-Backend-Plan/requirements.txt).
 
 ## Database Design:
-The database schema, including table structures and relationships, can be found in the [Database Design](./E-Commerce Backend Plan/database-design.txt) document.
+The database schema, including table structures and relationships, can be found in the [Database Design](./E-Commerce-Backend-Plan/database-design.txt) document.
