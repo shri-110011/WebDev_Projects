@@ -22,6 +22,14 @@ git add .
 #To commit the changes to the local repo
 git commit -m "Some message about the code changes"
 
+#To commit the changes to the local repo with multiline comments
+git commit
+This will open a vim editor and there add the multiline comment.
+
+#To edit the commit message for a an un-pushed commit
+git commit --amend
+This will open a vim editor and there you can edit the multiline comment.
+
 #To push the code to the remote branch
 git push origin <branch_name>
 While using the above command the <branch_name> would be considered the local branch name from where the changes are to be pushed to the remote branch and
