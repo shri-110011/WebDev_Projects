@@ -26,9 +26,30 @@ git commit -m "Some message about the code changes"
 git commit
 This will open a vim editor and there add the multiline comment.
 
-#To edit the commit message for a an un-pushed commit
-git commit --amend
-This will open a vim editor and there you can edit the multiline comment.
+#To edit the commit message for the most recent an un-pushed commit
+1. git commit --amend
+2. This will open a vim editor and there you can edit the multiline comment and save it.
+
+# To change the message of the most recently pushed commit
+1. git commit --amend
+2. This will open a vim editor and there you can edit the multiline comment and save it.
+3. Use the push --force-with-lease command to force push over the old commit.
+git push --force-with-lease origin EXAMPLE-BRANCH
+
+--force-with-lease is a safer option that will not overwrite any work on the remote branch if more commits were added to the remote branch (by another team-member or coworker or what have you). It ensures you do not overwrite someone else's work by force pushing.
+
+References:
+https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/changing-a-commit-message
+https://stackoverflow.com/questions/52823692/git-push-force-with-lease-vs-force
+
+
+#To edit the commit messages of multiple commits
+1. git rebase -i HEAD~n, this would open the vim editor containing the last n commit from HEAD.
+2. Change the word 'pick' to 'reword' corresponding to the commits whose messages you want to edit and save and close the vim editor.
+3. In each resulting commit file, type the new commit message, save the file, and close it.
+4. When you're ready to push your changes to GitHub, use the push --force command to force push over the old commit.
+git push --force origin EXAMPLE-BRANCH
+
 
 #To push the code to the remote branch
 git push origin <branch_name>
@@ -81,7 +102,7 @@ git checkout -b branch1: This command creates a new branch named branch1 startin
 
 -------------------------------------------------------------------
 
-If I have 2 braches branch1 and branch2 and I merge brance2 on branch1. I made the last commit on branch1 at 10:00am and on brach2 at 9:00am on the same day. Will the branch2  commit get added first then the branch1 commit during merging?
+If I have 2 branches, branch1 and branch2 and I merge brance2 on branch1. I made the last commit on branch1 at 10:00am and on brach2 at 9:00am on the same day. Will the branch2  commit get added first then the branch1 commit during merging?
 
 When you merge branch2 into branch1, the order of the commits is determined by their parent-child relationships in the Git history, not by the timestamp of the commits.
 
