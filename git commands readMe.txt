@@ -26,7 +26,7 @@ git commit -m "Some message about the code changes"
 git commit
 This will open a vim editor and there add the multiline comment.
 
-#To edit the commit message for the most recent an un-pushed commit
+#To edit the commit message for the most recent un-pushed commit
 1. git commit --amend
 2. This will open a vim editor and there you can edit the multiline comment and save it.
 
