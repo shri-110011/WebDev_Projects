@@ -155,3 +155,22 @@ under the General section.
 7. Check the Search for nested projects checkbox.
 8. Click on Finish.
 And you should now see the folder "Test" containing java projects in Project Explorer.
+
+----------------------------------------------------------------------
+
+Steps to add a specific remote branch to Eclipse:
+1. git clone -b Learn-Advanced-Java-Features --single-branch https://github.com/shri-110011/Java-Projects.git
+
+2. Go to File > Open Projects from File System...
+
+3. Click on the Directory... and select the parent directory of the cloned project.
+
+4. Again go to File > Open Projects from File System... > click on the Directory... and select the nested Project say Project1 one at a time and click Finish.
+
+5. Right click on Project1 in Project Explorer > Properties > Project Natures > Click on Add... > Select  Java > Apply and Close.
+
+6. Right click on Project1 in Project Explorer > Build Path > Configure Build Path... > Source tab > Apply and Close.
+
+7. Now the nested Java project, Project1 has been configured as a Java Project and the Standard Java libraries have been added to classpath.
+
+8. Repeat step 4 - step 7 for each nested Java project in the parent directory of the cloned project.
