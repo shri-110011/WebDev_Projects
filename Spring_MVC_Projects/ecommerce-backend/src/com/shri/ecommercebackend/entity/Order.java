@@ -41,11 +41,11 @@ public class Order {
 
 	@Column(name = "order_cancellation_datetime")
 	private LocalDateTime orderCancellationDateTime;
-
+	
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "order_id")
 	private List<OrderItem> orderItems;
-
+	
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "order_id")
 	private List<InventoryEventOrderReservationLink> inventoryEventOrderReservationLinks;

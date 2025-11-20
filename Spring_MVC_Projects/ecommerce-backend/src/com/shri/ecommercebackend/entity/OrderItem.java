@@ -21,15 +21,15 @@ public class OrderItem {
 	private BigDecimal priceAtPurchase;
 	
 	public OrderItem() {
-	
-	}
 		
+	}
+
 	public OrderItem(int orderId, int productId, int quantity, BigDecimal priceAtPurchase) {
 		this.orderItemKey = new OrderItemKey(orderId, productId);
 		this.quantity = quantity;
 		this.priceAtPurchase = priceAtPurchase;
 	}
-	
+
 	public OrderItemKey getOrderItemKey() {
 		return orderItemKey;
 	}

@@ -85,9 +85,12 @@ public class OrderDAOImpl implements OrderDAO {
 			inventoryEventLog.setStatus(InventoryEventStatus.COMPLETED);
 			inventoryEventLog.setStatusChangeDatetime(LocalDateTime.now());
 			
+			inventoryOrderReservationLink.setOrderId(orderId);
+			
 			OrderItem orderItem = new OrderItem(orderId, inventoryOrderReservationLink.getProductId(), 
 					inventoryOrderReservationLink.getQuantity(), 
 					inventoryOrderReservationLink.getPriceAtPurchase());
+			
 			System.out.println(orderItem);
 			System.out.println(inventoryOrderReservationLink.getInventoryEventLog());
 			
