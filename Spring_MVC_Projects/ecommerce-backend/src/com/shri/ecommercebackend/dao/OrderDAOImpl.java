@@ -121,7 +121,7 @@ public class OrderDAOImpl implements OrderDAO {
 		
 		ReturnEventLog returnEventLog = new ReturnEventLog();
 		returnEventLog.setOrderId(orderId);
-		returnEventLog.setStatus(ReturnStatus.COMPLETED);
+		returnEventLog.setStatus(ReturnStatus.ACTIVE);
 		returnEventLog.setStatusChangeDatetime(LocalDateTime.now());
 		
 		int returnId = (Integer)currentSession.save(returnEventLog);
