@@ -1,0 +1,80 @@
+Products not present in cache: []
+Nov 16, 2025 3:35:34 PM org.apache.coyote.AbstractProtocol start
+INFO: Starting ProtocolHandler ["http-nio-9001"]
+Nov 16, 2025 3:35:34 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in [10921] milliseconds
+Products not present in cache: [1000016, 1000014]
+Hibernate: select product0_.product_id as col_0_0_, product0_.available_quantity as col_1_0_, product0_.price as col_2_0_ from products product0_ where product0_.product_id in (? , ?)
+Products to be loaded into Redis...
+[ProductInventoryDTO [productId=1000014, availableQuantity=135, price=93.00], ProductInventoryDTO [productId=1000016, availableQuantity=80, price=20.00]]
+Products loaded into Redis...
+Products not present in cache: []
+Executing Lua script to reserve items...
+keys: [productsInventory:1000016, productsInventory:1000003, productsInventory:1000014]
+args: [3, 20.00, 1, 2999.00, 1, 93.00]
+Script result: [2, 2, 2]
+Hibernate: insert into inventory_events_log (adjusted_by, event_type, product_id, quantity, reason, status, status_change_datetime) values (?, ?, ?, ?, ?, ?, ?)
+InventoryEventLog [eventId=1000016, productId=1000016, eventType=RESERVATION, quantity=3, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null]
+Hibernate: insert into inventory_events_log (adjusted_by, event_type, product_id, quantity, reason, status, status_change_datetime) values (?, ?, ?, ?, ?, ?, ?)
+InventoryEventLog [eventId=1000017, productId=1000003, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null]
+Hibernate: insert into inventory_events_log (adjusted_by, event_type, product_id, quantity, reason, status, status_change_datetime) values (?, ?, ?, ?, ?, ?, ?)
+InventoryEventLog [eventId=1000018, productId=1000014, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null]
+Hibernate: insert into reservations (status, user_id) values (?, ?)
+Reservation [reservationId=1000006, userId=1000001, creationDateTime=null, expirationDateTime=null, status=ACTIVE]
+InventoryEventOrderReservationLink [id=0, inventoryEventLog=InventoryEventLog [eventId=1000016, productId=1000016, eventType=RESERVATION, quantity=3, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=null, expirationDateTime=null, status=ACTIVE], productId=1000016, quantity=3, priceAtPurchase=20.00]
+InventoryEventOrderReservationLink [id=0, inventoryEventLog=InventoryEventLog [eventId=1000017, productId=1000003, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=null, expirationDateTime=null, status=ACTIVE], productId=1000003, quantity=1, priceAtPurchase=2999.00]
+InventoryEventOrderReservationLink [id=0, inventoryEventLog=InventoryEventLog [eventId=1000018, productId=1000014, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=null, expirationDateTime=null, status=ACTIVE], productId=1000014, quantity=1, priceAtPurchase=93.00]
+reservationId: 1000006
+Hibernate: insert into inventory_events_orders_reservations_link (order_id, price_at_purchase, product_id, quantity, reservation_id, inventory_event_id) values (?, ?, ?, ?, ?, ?)
+Hibernate: insert into inventory_events_orders_reservations_link (order_id, price_at_purchase, product_id, quantity, reservation_id, inventory_event_id) values (?, ?, ?, ?, ?, ?)
+Hibernate: insert into inventory_events_orders_reservations_link (order_id, price_at_purchase, product_id, quantity, reservation_id, inventory_event_id) values (?, ?, ?, ?, ?, ?)
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+
+
+Why we have the last query being executed?
+i.e. update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+
+Request: http://localhost:9001/ecommerce-backend/api/v1/reserve-items
+Payload:
+{
+    "userId": 1000001,
+    "cartItems": [
+        {
+            "productId": 1000016,
+            "quantity": 3,
+            "pricePerUnit": 20.00
+        },
+        {
+            "productId": 1000003,
+            "quantity": 1,
+            "pricePerUnit": 2999.00
+        },
+        {
+            "productId": 1000014,
+            "quantity": 1,
+            "pricePerUnit": 93.00
+        }
+    ]
+}
+Response:
+{
+    "reservationId": 1000006,
+    "reservationStatus": "Complete",
+    "reservedItems": [
+        {
+            "productId": 1000016,
+            "quantity": 3
+        },
+        {
+            "productId": 1000003,
+            "quantity": 1
+        },
+        {
+            "productId": 1000014,
+            "quantity": 1
+        }
+    ],
+    "unavailableItems": [],
+    "invalidItems": [],
+    "priceMismatchItems": []
+}

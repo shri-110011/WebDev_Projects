@@ -1,0 +1,154 @@
+Products not present in cache: []
+Nov 19, 2025 9:33:37 PM org.apache.coyote.AbstractProtocol start
+INFO: Starting ProtocolHandler ["http-nio-9001"]
+Nov 19, 2025 9:33:37 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in [9038] milliseconds
+Hibernate: select reservatio0_.reservation_id as reservat1_6_0_, reservatio0_.creation_datetime as creation2_6_0_, reservatio0_.expiration_datetime as expirati3_6_0_, reservatio0_.status as status4_6_0_, reservatio0_.user_id as user_id5_6_0_ from reservations reservatio0_ where reservatio0_.reservation_id=?
+Reservation [reservationId=1000006, userId=1000001, creationDateTime=2025-11-19T21:25, expirationDateTime=2025-11-19T21:55, status=ACTIVE]
+reservationExpired: false
+Getting inventoryOrderReservationLinks...
+Hibernate: select inventorye0_.reservation_id as reservat6_2_0_, inventorye0_.inventory_event_id as inventor1_2_0_, inventorye0_.inventory_event_id as inventor1_2_1_, inventorye0_.order_id as order_id2_2_1_, inventorye0_.price_at_purchase as price_at3_2_1_, inventorye0_.product_id as product_4_2_1_, inventorye0_.quantity as quantity5_2_1_, inventorye0_.reservation_id as reservat6_2_1_, inventorye1_.event_id as event_id1_1_2_, inventorye1_.adjusted_by as adjusted2_1_2_, inventorye1_.event_type as event_ty3_1_2_, inventorye1_.product_id as product_4_1_2_, inventorye1_.quantity as quantity5_1_2_, inventorye1_.reason as reason6_1_2_, inventorye1_.status as status7_1_2_, inventorye1_.status_change_datetime as status_c8_1_2_ from inventory_events_orders_reservations_link inventorye0_ inner join inventory_events_log inventorye1_ on inventorye0_.inventory_event_id=inventorye1_.event_id where inventorye0_.reservation_id=?
+[InventoryEventOrderReservationLink [id=1000016, inventoryEventLog=InventoryEventLog [eventId=1000016, productId=1000016, eventType=RESERVATION, quantity=3, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=2025-11-19T21:25, expirationDateTime=2025-11-19T21:55, status=ACTIVE], productId=1000016, quantity=3, priceAtPurchase=20.00], InventoryEventOrderReservationLink [id=1000017, inventoryEventLog=InventoryEventLog [eventId=1000017, productId=1000003, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=2025-11-19T21:25, expirationDateTime=2025-11-19T21:55, status=ACTIVE], productId=1000003, quantity=1, priceAtPurchase=2999.00], InventoryEventOrderReservationLink [id=1000018, inventoryEventLog=InventoryEventLog [eventId=1000018, productId=1000014, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=2025-11-19T21:25, expirationDateTime=2025-11-19T21:55, status=ACTIVE], productId=1000014, quantity=1, priceAtPurchase=93.00]]
+Hibernate: insert into orders (order_cancellation_datetime, order_status, refunded_amount, total_amount, user_id) values (?, ?, ?, ?, ?)
+orderId: 1000004
+OrderItem [orderItemKey=OrderItemKey [orderId=1000004, productId=1000016], quantity=3, priceAtPurchase=20.00]
+InventoryEventLog [eventId=1000016, productId=1000016, eventType=SALE, quantity=3, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:39:23.378371, adjustedBy=null]
+OrderItem [orderItemKey=OrderItemKey [orderId=1000004, productId=1000003], quantity=1, priceAtPurchase=2999.00]
+InventoryEventLog [eventId=1000017, productId=1000003, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:40:34.701550800, adjustedBy=null]
+OrderItem [orderItemKey=OrderItemKey [orderId=1000004, productId=1000014], quantity=1, priceAtPurchase=93.00]
+InventoryEventLog [eventId=1000018, productId=1000014, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:40:50.807808500, adjustedBy=null]
+[OrderItem [orderItemKey=OrderItemKey [orderId=1000004, productId=1000016], quantity=3, priceAtPurchase=20.00], OrderItem [orderItemKey=OrderItemKey [orderId=1000004, productId=1000003], quantity=1, priceAtPurchase=2999.00], OrderItem [orderItemKey=OrderItemKey [orderId=1000004, productId=1000014], quantity=1, priceAtPurchase=93.00]]
+[InventoryEventOrderReservationLink [id=1000016, inventoryEventLog=InventoryEventLog [eventId=1000016, productId=1000016, eventType=SALE, quantity=3, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:39:23.378371, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=2025-11-19T21:25, expirationDateTime=2025-11-19T21:55, status=ACTIVE], productId=1000016, quantity=3, priceAtPurchase=20.00], InventoryEventOrderReservationLink [id=1000017, inventoryEventLog=InventoryEventLog [eventId=1000017, productId=1000003, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:40:34.701550800, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=2025-11-19T21:25, expirationDateTime=2025-11-19T21:55, status=ACTIVE], productId=1000003, quantity=1, priceAtPurchase=2999.00], InventoryEventOrderReservationLink [id=1000018, inventoryEventLog=InventoryEventLog [eventId=1000018, productId=1000014, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:40:50.807808500, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000006, userId=1000001, creationDateTime=2025-11-19T21:25, expirationDateTime=2025-11-19T21:55, status=ACTIVE], productId=1000014, quantity=1, priceAtPurchase=93.00]]
+Order [orderId=1000004, userId=1000001, totalAmount=3152.00, refundedAmount=0, orderStatus=CONFIRMED]
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+Hibernate: insert into order_items (price_at_purchase, quantity, order_id, product_id) values (?, ?, ?, ?)
+Hibernate: insert into order_items (price_at_purchase, quantity, order_id, product_id) values (?, ?, ?, ?)
+Hibernate: insert into order_items (price_at_purchase, quantity, order_id, product_id) values (?, ?, ?, ?)
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update reservations set status=?, user_id=? where reservation_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+
+Why select queries are being executed for fetching order_items instead of just 
+issuing the insert queries?
+i.e. why we have these queries?
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+
+Why again we have update queries for order_items when we have already inserted 
+the order_items?
+i.e. why we have these queries?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+
+Hibernate: select reservatio0_.reservation_id as reservat1_6_0_, reservatio0_.creation_datetime as creation2_6_0_, reservatio0_.expiration_datetime as expirati3_6_0_, reservatio0_.status as status4_6_0_, reservatio0_.user_id as user_id5_6_0_ from reservations reservatio0_ where reservatio0_.reservation_id=?
+Reservation [reservationId=1000009, userId=1000001, creationDateTime=2025-11-19T21:56:54, expirationDateTime=2025-11-19T22:26:54, status=ACTIVE]
+reservationExpired: false
+Getting inventoryOrderReservationLinks...
+Hibernate: select inventorye0_.reservation_id as reservat6_2_0_, inventorye0_.inventory_event_id as inventor1_2_0_, inventorye0_.inventory_event_id as inventor1_2_1_, inventorye0_.order_id as order_id2_2_1_, inventorye0_.price_at_purchase as price_at3_2_1_, inventorye0_.product_id as product_4_2_1_, inventorye0_.quantity as quantity5_2_1_, inventorye0_.reservation_id as reservat6_2_1_, inventorye1_.event_id as event_id1_1_2_, inventorye1_.adjusted_by as adjusted2_1_2_, inventorye1_.event_type as event_ty3_1_2_, inventorye1_.product_id as product_4_1_2_, inventorye1_.quantity as quantity5_1_2_, inventorye1_.reason as reason6_1_2_, inventorye1_.status as status7_1_2_, inventorye1_.status_change_datetime as status_c8_1_2_ from inventory_events_orders_reservations_link inventorye0_ inner join inventory_events_log inventorye1_ on inventorye0_.inventory_event_id=inventorye1_.event_id where inventorye0_.reservation_id=?
+[InventoryEventOrderReservationLink [id=1000022, inventoryEventLog=InventoryEventLog [eventId=1000022, productId=1000016, eventType=RESERVATION, quantity=3, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000009, userId=1000001, creationDateTime=2025-11-19T21:56:54, expirationDateTime=2025-11-19T22:26:54, status=ACTIVE], productId=1000016, quantity=3, priceAtPurchase=20.00], InventoryEventOrderReservationLink [id=1000023, inventoryEventLog=InventoryEventLog [eventId=1000023, productId=1000003, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000009, userId=1000001, creationDateTime=2025-11-19T21:56:54, expirationDateTime=2025-11-19T22:26:54, status=ACTIVE], productId=1000003, quantity=1, priceAtPurchase=2999.00], InventoryEventOrderReservationLink [id=1000024, inventoryEventLog=InventoryEventLog [eventId=1000024, productId=1000014, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000009, userId=1000001, creationDateTime=2025-11-19T21:56:54, expirationDateTime=2025-11-19T22:26:54, status=ACTIVE], productId=1000014, quantity=1, priceAtPurchase=93.00]]
+Hibernate: insert into orders (order_cancellation_datetime, order_status, refunded_amount, total_amount, user_id) values (?, ?, ?, ?, ?)
+orderId: 1000005
+OrderItem [orderItemKey=OrderItemKey [orderId=1000005, productId=1000016], quantity=3, priceAtPurchase=20.00]
+InventoryEventLog [eventId=1000022, productId=1000016, eventType=SALE, quantity=3, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:58:57.010462200, adjustedBy=null]
+OrderItem [orderItemKey=OrderItemKey [orderId=1000005, productId=1000003], quantity=1, priceAtPurchase=2999.00]
+InventoryEventLog [eventId=1000023, productId=1000003, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:59:27.931661300, adjustedBy=null]
+OrderItem [orderItemKey=OrderItemKey [orderId=1000005, productId=1000014], quantity=1, priceAtPurchase=93.00]
+InventoryEventLog [eventId=1000024, productId=1000014, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:59:32.275546900, adjustedBy=null]
+[OrderItem [orderItemKey=OrderItemKey [orderId=1000005, productId=1000016], quantity=3, priceAtPurchase=20.00], OrderItem [orderItemKey=OrderItemKey [orderId=1000005, productId=1000003], quantity=1, priceAtPurchase=2999.00], OrderItem [orderItemKey=OrderItemKey [orderId=1000005, productId=1000014], quantity=1, priceAtPurchase=93.00]]
+[InventoryEventOrderReservationLink [id=1000022, inventoryEventLog=InventoryEventLog [eventId=1000022, productId=1000016, eventType=SALE, quantity=3, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:58:57.010462200, adjustedBy=null], orderId=1000005, reservation=Reservation [reservationId=1000009, userId=1000001, creationDateTime=2025-11-19T21:56:54, expirationDateTime=2025-11-19T22:26:54, status=ACTIVE], productId=1000016, quantity=3, priceAtPurchase=20.00], InventoryEventOrderReservationLink [id=1000023, inventoryEventLog=InventoryEventLog [eventId=1000023, productId=1000003, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:59:27.931661300, adjustedBy=null], orderId=1000005, reservation=Reservation [reservationId=1000009, userId=1000001, creationDateTime=2025-11-19T21:56:54, expirationDateTime=2025-11-19T22:26:54, status=ACTIVE], productId=1000003, quantity=1, priceAtPurchase=2999.00], InventoryEventOrderReservationLink [id=1000024, inventoryEventLog=InventoryEventLog [eventId=1000024, productId=1000014, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-19T21:59:32.275546900, adjustedBy=null], orderId=1000005, reservation=Reservation [reservationId=1000009, userId=1000001, creationDateTime=2025-11-19T21:56:54, expirationDateTime=2025-11-19T22:26:54, status=ACTIVE], productId=1000014, quantity=1, priceAtPurchase=93.00]]
+Order [orderId=1000005, userId=1000001, totalAmount=3152.00, refundedAmount=0, orderStatus=CONFIRMED]
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+Hibernate: select orderitem_.order_id, orderitem_.product_id, orderitem_.price_at_purchase as price_at3_3_, orderitem_.quantity as quantity4_3_ from order_items orderitem_ where orderitem_.order_id=? and orderitem_.product_id=?
+Hibernate: insert into order_items (price_at_purchase, quantity, order_id, product_id) values (?, ?, ?, ?)
+Hibernate: insert into order_items (price_at_purchase, quantity, order_id, product_id) values (?, ?, ?, ?)
+Hibernate: insert into order_items (price_at_purchase, quantity, order_id, product_id) values (?, ?, ?, ?)
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=?, price_at_purchase=?, product_id=?, quantity=?, reservation_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=?, price_at_purchase=?, product_id=?, quantity=?, reservation_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=?, price_at_purchase=?, product_id=?, quantity=?, reservation_id=? where inventory_event_id=?
+Hibernate: update reservations set status=?, user_id=? where reservation_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+Hibernate: update order_items set order_id=? where order_id=? and product_id=?
+
+When I put this line:
+inventoryOrderReservationLink.setOrderId(orderId);
+Why I see these queries:
+Hibernate: update inventory_events_orders_reservations_link set order_id=?, price_at_purchase=?, product_id=?, quantity=?, reservation_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=?, price_at_purchase=?, product_id=?, quantity=?, reservation_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=?, price_at_purchase=?, product_id=?, quantity=?, reservation_id=? where inventory_event_id=?
+
+But not when I don't put it?
+
+Hibernate: select reservatio0_.reservation_id as reservat1_6_0_, reservatio0_.creation_datetime as creation2_6_0_, reservatio0_.expiration_datetime as expirati3_6_0_, reservatio0_.status as status4_6_0_, reservatio0_.user_id as user_id5_6_0_ from reservations reservatio0_ where reservatio0_.reservation_id=?
+Reservation [reservationId=1000011, userId=1000001, creationDateTime=2025-11-20T17:12:39, expirationDateTime=2025-11-20T17:42:39, status=ACTIVE]
+reservationExpired: false
+Getting inventoryOrderReservationLinks...
+Hibernate: select inventorye0_.reservation_id as reservat6_2_0_, inventorye0_.inventory_event_id as inventor1_2_0_, inventorye0_.inventory_event_id as inventor1_2_1_, inventorye0_.order_id as order_id2_2_1_, inventorye0_.price_at_purchase as price_at3_2_1_, inventorye0_.product_id as product_4_2_1_, inventorye0_.quantity as quantity5_2_1_, inventorye0_.reservation_id as reservat6_2_1_, inventorye1_.event_id as event_id1_1_2_, inventorye1_.adjusted_by as adjusted2_1_2_, inventorye1_.event_type as event_ty3_1_2_, inventorye1_.product_id as product_4_1_2_, inventorye1_.quantity as quantity5_1_2_, inventorye1_.reason as reason6_1_2_, inventorye1_.status as status7_1_2_, inventorye1_.status_change_datetime as status_c8_1_2_ from inventory_events_orders_reservations_link inventorye0_ inner join inventory_events_log inventorye1_ on inventorye0_.inventory_event_id=inventorye1_.event_id where inventorye0_.reservation_id=?
+[InventoryEventOrderReservationLink [id=1000028, inventoryEventLog=InventoryEventLog [eventId=1000028, productId=1000016, eventType=RESERVATION, quantity=3, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000011, userId=1000001, creationDateTime=2025-11-20T17:12:39, expirationDateTime=2025-11-20T17:42:39, status=ACTIVE], productId=1000016, quantity=3, priceAtPurchase=20.00], InventoryEventOrderReservationLink [id=1000029, inventoryEventLog=InventoryEventLog [eventId=1000029, productId=1000003, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000011, userId=1000001, creationDateTime=2025-11-20T17:12:39, expirationDateTime=2025-11-20T17:42:39, status=ACTIVE], productId=1000003, quantity=1, priceAtPurchase=2999.00], InventoryEventOrderReservationLink [id=1000030, inventoryEventLog=InventoryEventLog [eventId=1000030, productId=1000014, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000011, userId=1000001, creationDateTime=2025-11-20T17:12:39, expirationDateTime=2025-11-20T17:42:39, status=ACTIVE], productId=1000014, quantity=1, priceAtPurchase=93.00]]
+Hibernate: insert into orders (order_cancellation_datetime, order_status, refunded_amount, total_amount, user_id) values (?, ?, ?, ?, ?)
+orderId: 1000007
+OrderItem [orderItemKey=OrderItemKey [orderId=1000007, productId=1000016], quantity=3, priceAtPurchase=20.00]
+InventoryEventLog [eventId=1000028, productId=1000016, eventType=SALE, quantity=3, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T17:13:13.781697900, adjustedBy=null]
+OrderItem [orderItemKey=OrderItemKey [orderId=1000007, productId=1000003], quantity=1, priceAtPurchase=2999.00]
+InventoryEventLog [eventId=1000029, productId=1000003, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T17:13:13.790017800, adjustedBy=null]
+OrderItem [orderItemKey=OrderItemKey [orderId=1000007, productId=1000014], quantity=1, priceAtPurchase=93.00]
+InventoryEventLog [eventId=1000030, productId=1000014, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T17:13:13.790017800, adjustedBy=null]
+null
+[InventoryEventOrderReservationLink [id=1000028, inventoryEventLog=InventoryEventLog [eventId=1000028, productId=1000016, eventType=SALE, quantity=3, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T17:13:13.781697900, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000011, userId=1000001, creationDateTime=2025-11-20T17:12:39, expirationDateTime=2025-11-20T17:42:39, status=ACTIVE], productId=1000016, quantity=3, priceAtPurchase=20.00], InventoryEventOrderReservationLink [id=1000029, inventoryEventLog=InventoryEventLog [eventId=1000029, productId=1000003, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T17:13:13.790017800, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000011, userId=1000001, creationDateTime=2025-11-20T17:12:39, expirationDateTime=2025-11-20T17:42:39, status=ACTIVE], productId=1000003, quantity=1, priceAtPurchase=2999.00], InventoryEventOrderReservationLink [id=1000030, inventoryEventLog=InventoryEventLog [eventId=1000030, productId=1000014, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T17:13:13.790017800, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000011, userId=1000001, creationDateTime=2025-11-20T17:12:39, expirationDateTime=2025-11-20T17:42:39, status=ACTIVE], productId=1000014, quantity=1, priceAtPurchase=93.00]]
+Order [orderId=1000007, userId=1000001, totalAmount=3152.00, refundedAmount=0, orderStatus=CONFIRMED]
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update reservations set status=?, user_id=? where reservation_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+Hibernate: update inventory_events_orders_reservations_link set order_id=? where inventory_event_id=?
+
+When I comment the following lines:
+inventoryOrderReservationLink.setOrderId(orderId);
+order.addOrderItem(orderItem);
+
+I get the above queries for place order flow.
+
+Hibernate: select inventorye0_.reservation_id as reservat6_2_0_, inventorye0_.inventory_event_id as inventor1_2_0_, inventorye0_.inventory_event_id as inventor1_2_1_, inventorye0_.order_id as order_id2_2_1_, inventorye0_.price_at_purchase as price_at3_2_1_, inventorye0_.product_id as product_4_2_1_, inventorye0_.quantity as quantity5_2_1_, inventorye0_.reservation_id as reservat6_2_1_, inventorye1_.event_id as event_id1_1_2_, inventorye1_.adjusted_by as adjusted2_1_2_, inventorye1_.event_type as event_ty3_1_2_, inventorye1_.product_id as product_4_1_2_, inventorye1_.quantity as quantity5_1_2_, inventorye1_.reason as reason6_1_2_, inventorye1_.status as status7_1_2_, inventorye1_.status_change_datetime as status_c8_1_2_ from inventory_events_orders_reservations_link inventorye0_ inner join inventory_events_log inventorye1_ on inventorye0_.inventory_event_id=inventorye1_.event_id where inventorye0_.reservation_id=?
+[InventoryEventOrderReservationLink [id=1000037, inventoryEventLog=InventoryEventLog [eventId=1000037, productId=1000016, eventType=RESERVATION, quantity=3, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000014, userId=1000001, creationDateTime=2025-11-20T18:02:50, expirationDateTime=2025-11-20T18:32:50, status=ACTIVE], productId=1000016, quantity=3, priceAtPurchase=20.00], InventoryEventOrderReservationLink [id=1000038, inventoryEventLog=InventoryEventLog [eventId=1000038, productId=1000003, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000014, userId=1000001, creationDateTime=2025-11-20T18:02:50, expirationDateTime=2025-11-20T18:32:50, status=ACTIVE], productId=1000003, quantity=1, priceAtPurchase=2999.00], InventoryEventOrderReservationLink [id=1000039, inventoryEventLog=InventoryEventLog [eventId=1000039, productId=1000014, eventType=RESERVATION, quantity=1, reason=null, status=ACTIVE, statusChangeDatetime=null, adjustedBy=null], orderId=null, reservation=Reservation [reservationId=1000014, userId=1000001, creationDateTime=2025-11-20T18:02:50, expirationDateTime=2025-11-20T18:32:50, status=ACTIVE], productId=1000014, quantity=1, priceAtPurchase=93.00]]
+Hibernate: insert into orders (order_cancellation_datetime, order_status, refunded_amount, total_amount, user_id) values (?, ?, ?, ?, ?)
+orderId: 1000010
+OrderItem [orderItemKey=OrderItemKey [orderId=1000010, productId=1000016], quantity=3, priceAtPurchase=20.00]
+InventoryEventLog [eventId=1000037, productId=1000016, eventType=SALE, quantity=3, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T18:02:55.554144200, adjustedBy=null]
+OrderItem [orderItemKey=OrderItemKey [orderId=1000010, productId=1000003], quantity=1, priceAtPurchase=2999.00]
+InventoryEventLog [eventId=1000038, productId=1000003, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T18:02:55.554144200, adjustedBy=null]
+OrderItem [orderItemKey=OrderItemKey [orderId=1000010, productId=1000014], quantity=1, priceAtPurchase=93.00]
+InventoryEventLog [eventId=1000039, productId=1000014, eventType=SALE, quantity=1, reason=null, status=COMPLETED, statusChangeDatetime=2025-11-20T18:02:55.554144200, adjustedBy=null]
+null
+null
+Order [orderId=1000010, userId=1000001, totalAmount=3152.00, refundedAmount=0, orderStatus=CONFIRMED]
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update inventory_events_log set adjusted_by=?, event_type=?, product_id=?, quantity=?, reason=?, status=?, status_change_datetime=? where event_id=?
+Hibernate: update reservations set status=?, user_id=? where reservation_id=?
+
+When I comment the following lines:
+inventoryOrderReservationLink.setOrderId(orderId);
+order.addInventoryEventOrderReservationLink(inventoryOrderReservationLink);
+order.addOrderItem(orderItem);
+
+I get the above queries for place order flow.

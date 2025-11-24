@@ -1,0 +1,60 @@
+Checkout / Proceed to Buy:
+
+    - Validate the stock and prices.
+
+    - If requested items are unavailable or has insufficient stock or some 
+    price mismatch then:
+        - Send a response to the user mentioning these things.
+
+    - Else:
+        - Reserve/soft lock the requested items for 20 mins and send the 
+        reservation id in response.
+
+Place Order:
+
+    - If the reservation has not expired then:
+        - Place a lock on the corresponding row in Reservation.
+        - Validate the price of the ordered items.
+        - If there is any price mismatch found then:
+            - Notify it to the user for acknowledgement.
+        - Else:
+            - Insert the order and ordered items in the database.
+
+    - Else: 
+        - Re-reserve the items in that order with ttl of 5 mins.
+        - Proceed with order placing.
+
+Checkout again:
+
+    - Get the diff for the current cart items with the already reserved 
+    items.
+
+    - If already reserved items have been removed then:
+        - Cancel the reservation for those items and update their stock.
+    
+    - If already reserved items quantities have changed then:
+        - Validate stock and update the quantities in database and in Redis.
+    
+    - If new items have been added then:
+        - Validate stock and reserve these items using the same reservation id.
+
+    - If there is any price mismatch then:
+        - Inform the user about this.
+
+For stock availability refer to the Redis server. If item 
+not in Redis then we refer to the database.
+
+cart:
+
+cart_id
+user_id
+created_at
+updated_at
+
+cart_item:
+
+cart_item_id
+cart_id
+product_id
+qty
+

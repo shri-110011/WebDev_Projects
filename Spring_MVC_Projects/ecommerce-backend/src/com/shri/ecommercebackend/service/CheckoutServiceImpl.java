@@ -116,8 +116,6 @@ public class CheckoutServiceImpl implements CheckoutService {
 		
 		return invalidItemsMap;
 	}
-
-	
 	
 	private List<CartItem> getValidatedCartItems(List<String> luaScriptResults, List<CartItem> cartItems, 
 			Map<Integer, InvalidItemReason> invalidItemsMap) {

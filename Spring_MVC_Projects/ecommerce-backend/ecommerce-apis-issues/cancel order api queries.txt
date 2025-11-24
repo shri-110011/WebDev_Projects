@@ -1,0 +1,30 @@
+Products not present in cache: []
+Nov 20, 2025 9:34:02 PM org.apache.coyote.AbstractProtocol start
+INFO: Starting ProtocolHandler ["http-nio-9001"]
+Nov 20, 2025 9:34:03 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in [10419] milliseconds
+Hibernate: select order0_.order_id as order_id1_4_0_, order0_.order_cancellation_datetime as order_ca2_4_0_, order0_.order_creation_datetime as order_cr3_4_0_, order0_.order_status as order_st4_4_0_, order0_.refunded_amount as refunded5_4_0_, order0_.total_amount as total_am6_4_0_, order0_.user_id as user_id7_4_0_ from orders order0_ where order0_.order_id=?
+Hibernate: insert into return_events_log (order_id, status, status_change_datetime) values (?, ?, ?)
+returnId: 1000003
+Getting inventoryOrderReservationLinks...
+Hibernate: select inventorye0_.order_id as order_id2_2_0_, inventorye0_.inventory_event_id as inventor1_2_0_, inventorye0_.inventory_event_id as inventor1_2_1_, inventorye0_.order_id as order_id2_2_1_, inventorye0_.price_at_purchase as price_at3_2_1_, inventorye0_.product_id as product_4_2_1_, inventorye0_.quantity as quantity5_2_1_, inventorye0_.reservation_id as reservat6_2_1_, reservatio1_.reservation_id as reservat1_6_2_, reservatio1_.creation_datetime as creation2_6_2_, reservatio1_.expiration_datetime as expirati3_6_2_, reservatio1_.status as status4_6_2_, reservatio1_.user_id as user_id5_6_2_, inventorye2_.event_id as event_id1_1_3_, inventorye2_.adjusted_by as adjusted2_1_3_, inventorye2_.event_type as event_ty3_1_3_, inventorye2_.product_id as product_4_1_3_, inventorye2_.quantity as quantity5_1_3_, inventorye2_.reason as reason6_1_3_, inventorye2_.status as status7_1_3_, inventorye2_.status_change_datetime as status_c8_1_3_ from inventory_events_orders_reservations_link inventorye0_ left outer join reservations reservatio1_ on inventorye0_.reservation_id=reservatio1_.reservation_id inner join inventory_events_log inventorye2_ on inventorye0_.inventory_event_id=inventorye2_.event_id where inventorye0_.order_id=?
+Getting inventoryOrderReservationLinks...
+Hibernate: select orderitems0_.order_id as order_id1_3_0_, orderitems0_.product_id as product_2_3_0_, orderitems0_.order_id as order_id1_3_1_, orderitems0_.product_id as product_2_3_1_, orderitems0_.price_at_purchase as price_at3_3_1_, orderitems0_.quantity as quantity4_3_1_ from order_items orderitems0_ where orderitems0_.order_id=?
+Products not present in cache: []
+Executing Lua script to increase available items quantity...
+keys: [productsInventory:1000014, productsInventory:1000003, productsInventory:1000016]
+args: [1, 1, 3]
+Script result: [124, 45, 47]
+Hibernate: select returnitem_.inventory_event_id, returnitem_.product_id as product_2_8_, returnitem_.quantity as quantity3_8_, returnitem_.reason as reason4_8_, returnitem_.return_id as return_i5_8_ from return_items returnitem_ where returnitem_.inventory_event_id=?
+Hibernate: select returnitem_.inventory_event_id, returnitem_.product_id as product_2_8_, returnitem_.quantity as quantity3_8_, returnitem_.reason as reason4_8_, returnitem_.return_id as return_i5_8_ from return_items returnitem_ where returnitem_.inventory_event_id=?
+Hibernate: select returnitem_.inventory_event_id, returnitem_.product_id as product_2_8_, returnitem_.quantity as quantity3_8_, returnitem_.reason as reason4_8_, returnitem_.return_id as return_i5_8_ from return_items returnitem_ where returnitem_.inventory_event_id=?
+Hibernate: insert into return_items (product_id, quantity, reason, return_id, inventory_event_id) values (?, ?, ?, ?, ?)
+Hibernate: insert into return_items (product_id, quantity, reason, return_id, inventory_event_id) values (?, ?, ?, ?, ?)
+Hibernate: insert into return_items (product_id, quantity, reason, return_id, inventory_event_id) values (?, ?, ?, ?, ?)
+Hibernate: update orders set order_cancellation_datetime=?, order_status=?, refunded_amount=?, total_amount=?, user_id=? where order_id=?
+Hibernate: update return_items set return_id=? where inventory_event_id=?
+Hibernate: update return_items set return_id=? where inventory_event_id=?
+Hibernate: update return_items set return_id=? where inventory_event_id=?
+
+Why update return_items queries are running when we have already inserted the 
+return_items?
